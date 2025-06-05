@@ -30,7 +30,7 @@ const Overview = () => {
             </div>
           </div>
           <div className="hero-image">
-            <img src="../Images/medical-services.png" alt="Services de santé en ligne" />
+            <img src="/Images/medical-services.png" alt="Services de santé en ligne" />
           </div>
         </div>
       </section>
