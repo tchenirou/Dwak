@@ -18,7 +18,7 @@ function Home() {
             </div>
             <div className="hero-image">
               <img
-                src="/public/Images/DocThx.png"
+                src="/Images/DocThx.png"
                 alt="Online consultation"
               />
             </div>
