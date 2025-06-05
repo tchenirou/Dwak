@@ -27,7 +27,7 @@ import AdminAppointments from "../Dashboard/AdminDashboard/AdminAppointments/Adm
 import ProfileDropdown from "../../component/Dashboards/Profilepic/ProfileDropdown"
 import ProtectedRoute from "../../component/ProtectedRoute"
 import { getUserRole } from "../../utils/authUtils"
-import ConsultationRoom from "../consultationroom/consultationroom"
+import ConsultationRoom from "../consultationroom/ConsultationRoom"
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
