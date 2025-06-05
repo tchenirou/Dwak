@@ -1,0 +1,371 @@
+.doctor-dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f7faff, rgba(160, 196, 255, 0.3));
+    font-family: 'Inter', sans-serif;
+    flex-direction: column;
+}
+
+
+/* Main Content Styles */
+.doctor-dashboard-container .main-content {
+    flex: 1;
+    margin-left: 260px;
+    margin-right: 400px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+}
+
+.doctor-dashboard-container .dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.doctor-dashboard-container .dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.doctor-dashboard-container .dashboard-header p {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Stats Cards Styles */
+.doctor-dashboard-container .info-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.doctor-dashboard-container .info-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.doctor-dashboard-container .info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.doctor-dashboard-container .info-card-content {
+    padding: 1.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.doctor-dashboard-container .stat-icon-container {
+    background: rgba(61, 86, 245, 0.15);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #3d56f5;
+}
+
+.doctor-dashboard-container .stat-content {
+    flex: 1;
+}
+
+.doctor-dashboard-container .stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.doctor-dashboard-container .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.doctor-dashboard-container .stat-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.doctor-dashboard-container .stat-growth {
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.doctor-dashboard-container .stat-growth.positive {
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+}
+
+.doctor-dashboard-container .stat-growth.negative {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+/* Bookings Table Styles */
+.doctor-dashboard-container .bookings-container {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.doctor-dashboard-container .bookings-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+}
+
+.doctor-dashboard-container .bookings-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.doctor-dashboard-container .bookings-table-container {
+    overflow-x: auto;
+}
+
+.doctor-dashboard-container .bookings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.doctor-dashboard-container .bookings-table th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.doctor-dashboard-container .bookings-table td {
+    padding: 1rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.3);
+}
+
+.doctor-dashboard-container .bookings-table tr:hover {
+    background: rgba(249, 250, 251, 0.5);
+}
+
+.doctor-dashboard-container .patient-name {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.doctor-dashboard-container .booking-date {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.doctor-dashboard-container .booking-time {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.doctor-dashboard-container .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.doctor-dashboard-container .status-badge.confirmed {
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+}
+
+.doctor-dashboard-container .status-badge.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.doctor-dashboard-container .action-button {
+    background: none;
+    border: none;
+    color: #3d56f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.doctor-dashboard-container .action-button:hover {
+    transform: scale(1.1);
+}
+
+.doctor-dashboard-container .bookings-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+    text-align: right;
+}
+
+.doctor-dashboard-container .view-all-button {
+    background: none;
+    border: none;
+    color: #3d56f5;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.doctor-dashboard-container .view-all-button:hover {
+    text-decoration: underline;
+}
+
+/* Right Sidebar Styles */
+.doctor-dashboard-container .right-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: flex-end;
+    width: 400px;
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    padding: 1.5rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.doctor-dashboard-container .consult-button {
+    background: rgba(160, 196, 255, 0.3);
+    border: 1px solid rgba(9, 5, 240, 0.651);
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    text-align: left;
+}
+
+.doctor-dashboard-container .consult-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.doctor-dashboard-container .doctors-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 0.75rem;
+}
+
+.doctor-dashboard-container .doctor-avatars {
+    display: flex;
+}
+
+.doctor-dashboard-container .doctor-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-left: -10px;
+}
+
+.doctor-dashboard-container .doctor-avatar:first-child {
+    margin-left: 0;
+}
+
+.doctor-dashboard-container .estimated-time {
+    font-size: 0.875rem;
+    color: #000000;
+    background: rgba(116, 101, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.doctor-dashboard-container .consult-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.doctor-dashboard-container .consult-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.doctor-dashboard-container .consult-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.doctor-dashboard-container .consult-info p {
+    font-size: 0.875rem;
+    color: #333;
+    margin: 0;
+}
+
+.doctor-dashboard-container .chevron-icon {
+    align-self: flex-end;
+    background: #3d56f5;
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1280px) {
+    .doctor-dashboard-container .right-sidebar {
+        width: 20px;
+    }
+    .doctor-dashboard-container .main-content {
+        margin-right: 0;
+        margin-top: 50px;
+    }
+    .doctor-dashboard-container .consult-button {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .doctor-dashboard-container .main-content {
+        margin-left: 80px;
+    }
+}
+
+@media (max-width: 640px) {
+    .doctor-dashboard-container .main-content {
+        margin-left: 0;
+        margin-bottom: 60px;
+        padding: 1rem;
+    }
+    .doctor-dashboard-container .info-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}

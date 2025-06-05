@@ -1,0 +1,185 @@
+.video-call-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #000000;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-call-modal .call-status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+}
+
+.video-call-modal .participant-info {
+    display: flex;
+    align-items: center;
+}
+
+.video-call-modal .participant-details {
+    margin-left: 0.75rem;
+}
+
+.video-call-modal .participant-details h3 {
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.video-call-modal .participant-details p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.75rem;
+    margin: 0;
+}
+
+.video-call-modal .close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.video-call-modal .close-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.video-call-modal .video-container {
+    flex: 1;
+    position: relative;
+}
+
+.video-call-modal .remote-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-call-modal .remote-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1f2937;
+}
+
+.video-call-modal .avatar.large {
+    width: 8rem;
+    height: 8rem;
+}
+
+.video-call-modal .local-video-container {
+    position: absolute;
+    bottom: 6rem;
+    right: 1rem;
+    width: 25%;
+    max-width: 200px;
+    aspect-ratio: 4 / 3;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 2px solid white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.video-call-modal .local-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-call-modal .video-off-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #1f2937;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-call-modal .call-controls {
+    background-color: #1f2937;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.video-call-modal .control-button {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    border: none;
+    background-color: #374151;
+    color: white;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.video-call-modal .control-button:hover {
+    background-color: #4b5563;
+}
+
+.video-call-modal .control-button.active {
+    background-color: #ef4444;
+}
+
+.video-call-modal .control-button.end-call {
+    background-color: #ef4444;
+}
+
+.video-call-modal .control-button.end-call:hover {
+    background-color: #dc2626;
+}
+
+.video-call-modal .avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.video-call-modal .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.video-call-modal .avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3b82f6;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}

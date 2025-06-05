@@ -1,0 +1,478 @@
+.overview-page {
+    --primary-color: #546bfc;
+    --primary-hover: #3d56f5;
+    --secondary-color: #e5f7f7;
+    --text-color: #333333;
+    --text-light: #666666;
+    --background-color: #f8f6ff;
+    --white: #ffffff;
+}
+
+.overview-page {
+    background-color: var(--background-color);
+}
+
+.overview-page .hero-section {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: var(--white);
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.overview-page .hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.overview-page .hero-subtitle {
+    font-size: 1.25rem;
+    max-width: 800px;
+    margin: 0 auto;
+    opacity: 0.9;
+}
+
+.overview-page .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+}
+
+.overview-page .service-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.overview-page .service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.overview-page .service-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.overview-page .doctor-card img {
+    transition: transform 0.3s ease;
+}
+
+.overview-page .doctor-card:hover img {
+    transform: scale(1.05);
+}
+
+.overview-page .opportunity-card {
+    transition: background-color 0.3s ease;
+}
+
+.overview-page .opportunity-card:hover {
+    background-color: var(--secondary-color);
+}
+
+.overview-page .patient-service-card {
+    transition: transform 0.3s ease;
+}
+
+.overview-page .patient-service-card:hover {
+    transform: translateY(-5px);
+}
+
+.overview-page .cta-section {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 4rem 0;
+    text-align: center;
+    
+}
+.overview-page .final-cta{
+    padding: 2rem;
+    text-align: center;
+      display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+    
+}
+.overview-page .final-cta p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+.overview-page .cta-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.overview-page .cta-subtitle {
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    opacity: 0.9;
+}
+
+.overview-page .cta-button {
+    background-color: var(--white);
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.overview-page .cta-button:hover {
+    background-color: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+.overview-page {
+    padding-top: 80px;
+}
+
+.overview-page h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.overview-page .feature-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.overview-page .feature-card {
+    flex-basis: calc(25% - 2rem);
+    min-width: 250px;
+}
+
+.overview-page .feature-card img {
+    width: 150px;
+    height: 150px;
+    margin-bottom: 1rem;
+}
+
+.overview-page .future-healthcare .container {
+    align-items: flex-start;
+}
+
+.overview-page .future-cards {
+    margin-bottom: 2rem;
+}
+
+.overview-page .step-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.overview-page .step-card {
+    flex-basis: calc(33.333% - 2rem);
+    min-width: 250px;
+}
+/* Doctors Section Styles */
+.overview-page .doctors-section {
+    padding: 4rem 0;
+    background-color: #fff;
+  }
+  
+  .overview-page .doctors-container {
+    position: relative;
+    padding: 0 40px;
+  }
+  
+  .overview-page .doctors-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    gap: 2rem;
+    padding: 1rem 0;
+  }
+  
+  .overview-page .doctors-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .overview-page .doctor-card {
+    flex: 0 0 auto;
+    width: 300px;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  
+  .overview-page .doctor-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .overview-page .doctor-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+  
+  .overview-page .doctor-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .overview-page .doctor-info h3 {
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .overview-page .doctor-info .specialty {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .overview-page .doctor-info .experience,
+  .overview-page .doctor-info .consults {
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .scroll-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1;
+  }
+  
+  .scroll-button:hover {
+    background: #f5f5f5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .scroll-button.left {
+    left: 0;
+  }
+  
+  .scroll-button.right {
+    right: 0;
+  }
+  
+  /* How it Works Section Styles */
+  .how-it-works {
+    padding: 4rem 0;
+    background-color: #f8f9fa;
+  }
+  
+  .steps-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 200px;
+  }
+  
+  .step-icon {
+    width: 64px;
+    height: 64px;
+    background: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #546bfc;
+  }
+  
+  .step-connector {
+    flex-grow: 1;
+    height: 2px;
+    background: #e0e0e0;
+    position: relative;
+    max-width: 100px;
+  }
+  
+  .step-connector::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 6px solid #e0e0e0;
+  }
+  
+  @media (max-width: 768px) {
+    .overview-page .hero-title {
+        font-size: 2rem;
+    }
+    
+    .overview-page .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .overview-page .section-title {
+        font-size: 1.75rem;
+    }
+    
+    .overview-page .cta-title {
+        font-size: 1.75rem;
+    }
+    
+    .overview-page .cta-subtitle {
+        font-size: 1rem;
+    }
+    
+    .overview-page .feature-cards,
+    .overview-page .step-cards {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .overview-page .feature-card,
+    .overview-page .step-card {
+        flex-basis: 100%;
+        max-width: 400px;
+    }
+    
+    .overview-page .doctors-scroll {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .overview-page .doctor-card {
+        width: 90%;
+    }
+    
+    .steps-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .step-connector {
+        width: 2px;
+        height: 40px;
+        max-width: none;
+    }
+    
+    .step-connector::after {
+        top: auto;
+        right: 50%;
+        bottom: 0;
+        transform: translateX(50%) rotate(90deg);
+    }
+    
+    .overview-page .feature-card,
+    .overview-page .step-card {
+        flex-basis: calc(50% - 2rem);
+    }
+  }
+
+
+
+@media (max-width: 480px) {
+    .overview-page .feature-card,
+    .overview-page .step-card {
+        flex-basis: 100%;
+    }
+    .overview-page .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .overview-page .hero-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .overview-page .cta-title {
+        font-size: 1.5rem;
+    }
+
+    .overview-page .cta-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .overview-page .feature-card,
+    .overview-page .step-card {
+        flex-basis: 100%;
+    }
+
+    .overview-page .doctor-card {
+        width: 100%;
+    }
+
+    .overview-page .cta-section {
+        padding: 2rem 1rem;
+    }
+
+    .overview-page .cta-button {
+        width: 100%;
+        padding: 0.75rem;
+        font-size: 1rem;
+    }
+
+    .scroll-button {
+        display: none; /* Hide scroll buttons on small screens */
+    }
+}
+@media (max-width: 1024px) {
+    .overview-page .feature-card,
+    .overview-page .step-card {
+        flex-basis: calc(50% - 1rem);
+    }
+
+    .overview-page .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .overview-page .hero-subtitle {
+        font-size: 1.1rem;
+    }
+
+    .overview-page .cta-title {
+        font-size: 1.75rem;
+    }
+
+    .overview-page .cta-subtitle {
+        font-size: 1rem;
+    }
+
+    .overview-page .feature-cards,
+    .overview-page .step-cards {
+        gap: 1.5rem;
+    }
+}
+

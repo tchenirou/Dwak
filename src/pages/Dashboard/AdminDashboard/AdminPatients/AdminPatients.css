@@ -1,0 +1,986 @@
+/* Admin Patients Container */
+.admin-patients-container {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f7faff, rgba(160, 196, 255, 0.3));
+    font-family: 'Inter', sans-serif;
+    flex-direction: column;
+  }
+  
+  /* Main Content Styles */
+  .admin-patients-container .main-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+  }
+  
+  .admin-patients-container .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .admin-patients-container .page-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-patients-container .page-header p {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  .admin-patients-container .header-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .admin-patients-container .export-button,
+  .admin-patients-container .add-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .export-button {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .admin-patients-container .export-button:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .admin-patients-container .add-button {
+    background-color: #3d56f5;
+    color: white;
+    border: none;
+  }
+  
+  .admin-patients-container .add-button:hover {
+    background-color: #2a41d8;
+  }
+  
+  /* Filters and Search */
+  .admin-patients-container .filters-container {
+    margin-bottom: 1.5rem;
+  }
+  
+  .admin-patients-container .search-container {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  
+  .admin-patients-container .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+  }
+  
+  .admin-patients-container .search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    font-size: 0.875rem;
+    color: black;
+  }
+  
+  .admin-patients-container .search-input:focus {
+    outline: none;
+    border-color: #3d56f5;
+    box-shadow: 0 0 0 2px rgba(61, 86, 245, 0.2);
+  }
+  
+  .admin-patients-container .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .admin-patients-container .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .admin-patients-container .filter-group label {
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  .admin-patients-container .filter-group select {
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background-color: white;
+    font-size: 0.875rem;
+    color: #1f2937;
+  }
+  
+  .admin-patients-container .filter-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .filter-button:hover {
+    background-color: #e5e7eb;
+  }
+  
+  /* Patients Table */
+  .admin-patients-container .patients-table-container {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  
+  .admin-patients-container .patients-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .admin-patients-container .patients-table th {
+    text-align: left;
+    padding: 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(249, 250, 251, 0.8);
+  }
+  
+  .admin-patients-container .patients-table td {
+    padding: 1rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.3);
+    vertical-align: middle;
+  }
+  
+  .admin-patients-container .patients-table tr:hover {
+    background: rgba(249, 250, 251, 0.5);
+  }
+  
+  .admin-patients-container .patient-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .admin-patients-container .patient-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .admin-patients-container .patient-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .admin-patients-container .patient-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
+  
+  .admin-patients-container .patient-id {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .admin-patients-container .contact-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+  }
+  
+  .admin-patients-container .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .admin-patients-container .status-badge.active {
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+  }
+  
+  .admin-patients-container .status-badge.inactive {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+  
+  .admin-patients-container .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .admin-patients-container .action-button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .action-button.view {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+  }
+  
+  .admin-patients-container .action-button.edit {
+    background: rgba(61, 86, 245, 0.1);
+    color: #3d56f5;
+  }
+  
+  .admin-patients-container .action-button.delete {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+  
+  .admin-patients-container .action-button.suspend,
+  .admin-patients-container .action-button.reject {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+  }
+  
+  .admin-patients-container .action-button.activate,
+  .admin-patients-container .action-button.approve {
+    background: rgba(5, 150, 105, 0.1);
+    color: #059669;
+  }
+  
+  .admin-patients-container .action-button:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Loading and Empty States */
+  .admin-patients-container .loading-state,
+  .admin-patients-container .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+  }
+  
+  .admin-patients-container .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(61, 86, 245, 0.2);
+    border-radius: 50%;
+    border-top-color: #3d56f5;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .admin-patients-container .empty-state p {
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+  
+  .admin-patients-container .reset-button {
+    padding: 0.5rem 1rem;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .reset-button:hover {
+    background-color: #e5e7eb;
+  }
+  
+  /* Pagination */
+  .admin-patients-container .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    border-top: 1px solid rgba(229, 231, 235, 0.5);
+  }
+  
+  .admin-patients-container .pagination-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .admin-patients-container .pagination-pages {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0 0.5rem;
+  }
+  
+  .admin-patients-container .pagination-page {
+    width: 32px;
+    height: 32px;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+    background-color: white;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .pagination-page.active {
+    background-color: #3d56f5;
+    color: white;
+    border-color: #3d56f5;
+  }
+  
+  .admin-patients-container .pagination-button:hover:not(:disabled),
+  .admin-patients-container .pagination-page:hover:not(.active) {
+    background-color: #f3f4f6;
+  }
+  
+  /* Modal Styles */
+  .admin-patients-container .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(2px);
+  }
+  
+  .admin-patients-container .modal {
+    background: white;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    animation: modalFadeIn 0.3s ease-in-out;
+  }
+  
+  .admin-patients-container .patient-modal {
+    max-width: 700px;
+  }
+  
+  .admin-patients-container .view-patient-modal {
+    max-width: 700px;
+  }
+  
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .admin-patients-container .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .admin-patients-container .modal-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+  }
+  
+  .admin-patients-container .close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    line-height: 1;
+  }
+  
+  .admin-patients-container .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .admin-patients-container .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .admin-patients-container .confirm-modal {
+    max-width: 500px;
+  }
+  
+  .admin-patients-container .warning-text {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+  }
+  
+  /* Form Styles */
+  .admin-patients-container .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .admin-patients-container .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .admin-patients-container .form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-patients-container .form-group input,
+  .admin-patients-container .form-group select,
+  .admin-patients-container .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .form-group textarea {
+    resize: vertical;
+  }
+  
+  .admin-patients-container .form-group input:focus,
+  .admin-patients-container .form-group select:focus,
+  .admin-patients-container .form-group textarea:focus {
+    outline: none;
+    border-color: #3d56f5;
+    box-shadow: 0 0 0 2px rgba(61, 86, 245, 0.2);
+  }
+  
+  .admin-patients-container .file-upload {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .admin-patients-container .file-upload input[type="file"] {
+    display: none;
+  }
+  
+  .admin-patients-container .file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .file-upload-label:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .admin-patients-container .file-name {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .admin-patients-container .avatar-edit {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .admin-patients-container .edit-avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .admin-patients-container .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .admin-patients-container .btn-primary {
+    padding: 0.75rem 1.5rem;
+    background-color: #3d56f5;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .btn-primary:hover {
+    background-color: #2a41d8;
+  }
+  
+  .admin-patients-container .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .btn-secondary:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .admin-patients-container .btn-danger {
+    padding: 0.75rem 1.5rem;
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .admin-patients-container .btn-danger:hover {
+    background-color: #b91c1c;
+  }
+  
+  .admin-patients-container .btn-success {
+    padding: 0.75rem 1.5rem;
+    background-color: #059669;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .admin-patients-container .btn-success:hover {
+    background-color: #047857;
+  }
+  
+  /* Patient Profile in View Modal */
+  .admin-patients-container .patient-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .admin-patients-container .patient-profile-header {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  
+  .admin-patients-container .patient-profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  .admin-patients-container .patient-profile-info {
+    flex: 1;
+  }
+  
+  .admin-patients-container .patient-profile-info h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.25rem 0;
+  }
+  
+  .admin-patients-container .patient-profile-id {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .admin-patients-container .patient-profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .admin-patients-container .detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .admin-patients-container .detail-group h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .admin-patients-container .detail-item {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .admin-patients-container .detail-label {
+    font-weight: 500;
+    color: #4b5563;
+    min-width: 120px;
+  }
+  
+  .admin-patients-container .detail-value {
+    color: #1f2937;
+  }
+  
+  /* Medical Records Section */
+  .admin-patients-container .medical-records {
+    margin-top: 1.5rem;
+  }
+  
+  .admin-patients-container .medical-record-item {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .admin-patients-container .medical-record-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-patients-container .medical-record-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .admin-patients-container .medical-record-doctor {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  /* Appointments Section */
+  .admin-patients-container .appointments-list {
+    margin-top: 1.5rem;
+  }
+  
+  .admin-patients-container .appointment-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .admin-patients-container .appointment-date {
+    width: 80px;
+    text-align: center;
+    padding-right: 1rem;
+    border-right: 1px solid #e5e7eb;
+  }
+  
+  .admin-patients-container .appointment-day {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  .admin-patients-container .appointment-month {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .admin-patients-container .appointment-details {
+    flex: 1;
+    padding: 0 1rem;
+  }
+  
+  .admin-patients-container .appointment-time {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+  }
+  
+  .admin-patients-container .appointment-doctor {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  
+  .admin-patients-container .appointment-status {
+    margin-left: auto;
+  }
+  
+  /* Tabs for Patient Details */
+  .admin-patients-container .patient-tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+  }
+  
+  .admin-patients-container .patient-tab {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .admin-patients-container .patient-tab:hover {
+    color: #1f2937;
+  }
+  
+  .admin-patients-container .patient-tab.active {
+    color: #3d56f5;
+    font-weight: 600;
+  }
+  
+  .admin-patients-container .patient-tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: #3d56f5;
+  }
+  
+  .admin-patients-container .tab-content {
+    display: none;
+  }
+  
+  .admin-patients-container .tab-content.active {
+    display: block;
+  }
+  
+  /* Alert/Notification */
+  .admin-patients-container .alert {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: alertSlideIn 0.3s ease-in-out;
+    z-index: 100;
+  }
+  
+  @keyframes alertSlideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .admin-patients-container .alert-success {
+    background-color: #ecfdf5;
+    border-left: 4px solid #059669;
+    color: #065f46;
+  }
+  
+  .admin-patients-container .alert-error {
+    background-color: #fef2f2;
+    border-left: 4px solid #dc2626;
+    color: #991b1b;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 1280px) {
+    .admin-patients-container .main-content {
+      margin-right: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .admin-patients-container .main-content {
+      margin-left: 80px;
+    }
+    
+    .admin-patients-container .page-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .admin-patients-container .header-actions {
+      width: 100%;
+    }
+    
+    .admin-patients-container .export-button,
+    .admin-patients-container .add-button {
+      flex: 1;
+      justify-content: center;
+    }
+    
+    .admin-patients-container .filters {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .admin-patients-container .filter-group {
+      width: 100%;
+    }
+    
+    .admin-patients-container .filter-group select {
+      width: 100%;
+    }
+    
+    .admin-patients-container .form-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .admin-patients-container .patient-profile-header {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .admin-patients-container .patient-tabs {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .admin-patients-container .main-content {
+      margin-left: 0;
+      margin-bottom: 60px;
+      padding: 1rem;
+    }
+    
+    .admin-patients-container .patients-table {
+      display: block;
+      overflow-x: auto;
+    }
+    
+    .admin-patients-container .pagination-pages {
+      display: none;
+    }
+    
+    .admin-patients-container .pagination-button {
+      flex: 1;
+    }
+    
+    .admin-patients-container .modal {
+      width: 95%;
+    }
+    
+    .admin-patients-container .appointment-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .admin-patients-container .appointment-date {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #e5e7eb;
+      padding-right: 0;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .admin-patients-container .appointment-status {
+      margin-left: 0;
+      margin-top: 0.5rem;
+    }
+  }
+  

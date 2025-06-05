@@ -1,0 +1,762 @@
+/* Modern Recruitment Page Styles */
+:root {
+  --primary-color: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #dbeafe;
+  --secondary-color: #10b981;
+  --accent-color: #8b5cf6;
+  --text-dark: #1e293b;
+  --text-medium: #475569;
+  --text-light: #94a3b8;
+  --background-light: #f8fafc;
+  --background-white: #ffffff;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --success-color: #10b981;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+  --transition: all 0.3s ease;
+}
+
+/* Base Styles */
+.praticien-page-modern {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  color: var(--text-dark);
+  line-height: 1.6;
+  background-color: var(--background-light);
+}
+
+.praticien-page-modern .container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 1.5rem;
+}
+
+.praticien-page-modern .highlight {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.praticien-page-modern .section-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.praticien-page-modern .section-header h2 {
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.praticien-page-modern .section-header p {
+  font-size: 1.125rem;
+  color: var(--text-medium);
+}
+
+/* Hero Section */
+.praticien-page-modern .hero-section {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+  color: white;
+  padding: 6rem 0 8rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.praticien-page-modern .hero-content {
+  max-width: 700px;
+  position: relative;
+  z-index: 2;
+}
+
+.praticien-page-modern .hero-content h1 {
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+
+.praticien-page-modern .hero-content .highlight {
+  color: #fef08a;
+}
+
+.praticien-page-modern .hero-subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+}
+
+.praticien-page-modern .hero-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.praticien-page-modern .primary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: white;
+  color: var(--primary-color);
+  font-weight: 600;
+  padding: 0.875rem 1.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: var(--transition);
+  box-shadow: var(--shadow-md);
+}
+
+.praticien-page-modern .primary-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.praticien-page-modern .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0..5rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
+  padding: 0.875rem 1.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: var(--transition);
+  backdrop-filter: blur(4px);
+}
+
+.praticien-page-modern .secondary-button:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.praticien-page-modern .hero-shape {
+  position: absolute;
+  bottom: -5rem;
+  left: 0;
+  right: 0;
+  height: 10rem;
+  background-color: var(--background-light);
+  transform: skewY(-3deg);
+  z-index: 1;
+}
+
+/* Stats Section */
+.praticien-page-modern .stats-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: -4rem;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 5rem;
+}
+
+.praticien-page-modern .stat-card {
+  background-color: var(--background-white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.praticien-page-modern .stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.praticien-page-modern .stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-radius: var(--radius-full);
+  margin-bottom: 1rem;
+}
+
+.praticien-page-modern .stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.praticien-page-modern .stat-label {
+  font-size: 1rem;
+  color: var(--text-medium);
+}
+
+/* Benefits Section */
+.praticien-page-modern .benefits-section {
+  padding: 5rem 0;
+}
+
+.praticien-page-modern .benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.praticien-page-modern .benefit-card {
+  background-color: var(--background-white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
+}
+
+.praticien-page-modern .benefit-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+
+.praticien-page-modern .benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-radius: var(--radius-full);
+  margin-bottom: 1.5rem;
+}
+
+.praticien-page-modern .benefit-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.praticien-page-modern .benefit-card p {
+  color: var(--text-medium);
+  margin-bottom: 0;
+}
+
+/* Specialties Section */
+.praticien-page-modern .specialties-section {
+  padding: 5rem 0;
+  background-color: var(--background-white);
+  border-radius: var(--radius-lg);
+  margin: 3rem 0;
+}
+
+.praticien-page-modern .tabs {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.praticien-page-modern .tab-headers {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.praticien-page-modern .tab-headers::-webkit-scrollbar {
+  display: none;
+}
+
+.praticien-page-modern .tab-button {
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-medium);
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+}
+
+.praticien-page-modern .tab-button.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.praticien-page-modern .tab-button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+.praticien-page-modern .tab-content {
+  padding: 1rem 0;
+}
+
+.praticien-page-modern .tab-panel {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.praticien-page-modern .tab-panel h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.praticien-page-modern .check-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.praticien-page-modern .check-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.praticien-page-modern .check-icon {
+  color: var(--success-color);
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.praticien-page-modern .specialties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.praticien-page-modern .specialty-item {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  text-align: center;
+}
+
+.praticien-page-modern .note {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* Testimonials Section */
+.praticien-page-modern .testimonials-section {
+  padding: 5rem 0;
+}
+
+.praticien-page-modern .testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.praticien-page-modern .testimonial-card {
+  background-color: var(--background-white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.praticien-page-modern .testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.praticien-page-modern .testimonial-content {
+  margin-bottom: 1.5rem;
+}
+
+.praticien-page-modern .quote {
+  font-size: 1.125rem;
+  font-style: italic;
+  color: var(--text-dark);
+  margin-bottom: 0;
+}
+
+.praticien-page-modern .testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.praticien-page-modern .author-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.praticien-page-modern .author-info h4 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.praticien-page-modern .author-info p {
+  font-size: 0.875rem;
+  color: var(--text-medium);
+  margin-bottom: 0;
+}
+
+/* Join Section */
+.praticien-page-modern .join-section {
+  padding: 5rem 0;
+}
+
+.praticien-page-modern .join-container {
+  background-color: var(--background-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.praticien-page-modern .join-content {
+  padding: 3rem;
+}
+
+.praticien-page-modern .form-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #fff8e1;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+}
+
+.praticien-page-modern .warning-icon {
+  color: var(--warning-color);
+  flex-shrink: 0;
+}
+
+.praticien-page-modern .form-notice p {
+  font-size: 0.875rem;
+  color: var(--text-dark);
+  margin-bottom: 0;
+}
+
+.praticien-page-modern .join-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.praticien-page-modern .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.praticien-page-modern .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.praticien-page-modern .form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.praticien-page-modern .form-group input,
+.praticien-page-modern .form-group select,
+.praticien-page-modern .form-group textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.praticien-page-modern .form-group input:focus,
+.praticien-page-modern .form-group select:focus,
+.praticien-page-modern .form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.praticien-page-modern .form-group input.error,
+.praticien-page-modern .form-group select.error,
+.praticien-page-modern .form-group textarea.error {
+  border-color: var(--error-color);
+}
+
+.praticien-page-modern .error-message {
+  color: var(--error-color);
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.praticien-page-modern .checkbox-group {
+  margin-bottom: 2rem;
+}
+
+.praticien-page-modern .checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.praticien-page-modern .checkbox-label input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+}
+
+.praticien-page-modern .checkbox-label span {
+  font-size: 0.875rem;
+}
+
+.praticien-page-modern .checkbox-label.error-label span {
+  color: var(--error-color);
+}
+
+.praticien-page-modern .submit-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.praticien-page-modern .submit-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.praticien-page-modern .submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.praticien-page-modern .loading-spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.praticien-page-modern .form-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+/* FAQ Section */
+.praticien-page-modern .faq-section {
+  padding: 5rem 0;
+}
+
+.praticien-page-modern .faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.praticien-page-modern .faq-item {
+  background-color: var(--background-white);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.praticien-page-modern .faq-item h3 {
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+  color: var(--primary-color);
+}
+
+.praticien-page-modern .faq-item p {
+  font-size: 0.875rem;
+  color: var(--text-medium);
+  margin-bottom: 0;
+}
+
+/* CTA Section */
+.praticien-page-modern .cta-section {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+  color: white;
+  padding: 5rem 0;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.praticien-page-modern .cta-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.praticien-page-modern .cta-section p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .praticien-page-modern .hero-content h1 {
+    font-size: 2.5rem;
+  }
+
+  .praticien-page-modern .section-header h2 {
+    font-size: 1.75rem;
+  }
+
+  .praticien-page-modern .join-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .praticien-page-modern .tab-button {
+    padding: 0.75rem 1rem;
+  }
+
+  .praticien-page-modern .cta-section h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .praticien-page-modern .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .praticien-page-modern .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .praticien-page-modern .stat-number {
+    font-size: 2rem;
+  }
+
+  .praticien-page-modern .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .praticien-page-modern .testimonial-card {
+    padding: 1.5rem;
+  }
+
+  .praticien-page-modern .cta-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .praticien-page-modern .cta-section p {
+    font-size: 1rem;
+  }
+}
+
+/* Styles pour le textarea de description du travail */
+.praticien-page-modern .form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: var(--font-sans);
+}
+
+/* Styles pour les cases à cocher d'acceptation */
+.praticien-page-modern .checkbox-label a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.praticien-page-modern .checkbox-label a:hover {
+  text-decoration: underline;
+}
+
+.praticien-page-modern .checkbox-label.error-label {
+  color: var(--error-color);
+}
+
+/* Styles pour la page praticien originale (pour compatibilité) */
+.praticien-page-modern .praticien-page {
+  background-color: var(--background-light);
+  min-height: 100vh;
+  padding: 2rem 0;
+}
+
+.praticien-page-modern .hero-banner {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 3rem 0;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #4f46e5 100%);
+  color: white;
+  border-radius: var(--radius-lg);
+}
+
+.praticien-page-modern .hero-banner h1 {
+  font-size: 3rem;
+  color: white;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.praticien-page-modern .hero-banner .highlight {
+  color: #fef08a;
+}
+
+.praticien-page-modern .hero-banner .hero-subtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 800px;
+  margin: 0 auto;
+}
+

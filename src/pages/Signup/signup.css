@@ -1,0 +1,221 @@
+/* Signup page styles */
+.signup-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f6ff;
+    padding: 2rem;
+  }
+  
+  .signup-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+  }
+  
+  .signup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .back-button,
+  .close-button {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+  
+  .back-button:hover,
+  .close-button:hover {
+    background-color: #f0f0f0;
+    color: #333;
+  }
+  
+  .signup-container h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  
+  .subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: #546BFC;
+    box-shadow: 0 0 0 2px rgba(84, 107, 252, 0.1);
+  }
+  
+  .form-group input.error {
+    border-color: #ff4d4f;
+    background-color: #fff1f0;
+  }
+  
+  .error-message {
+    color: #ff4d4f;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #fff1f0;
+    border-radius: 0.25rem;
+  }
+  
+  .info-message {
+    background-color: #e6f7ff;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    color: #666;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  
+  .phone-input {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .country-code {
+    width: 120px;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    background-color: #f8f6ff;
+    color: #333;
+  }
+  
+  .password-group {
+    position: relative;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+  
+  .password-toggle:hover {
+    color: #546BFC;
+  }
+  
+  .signup-page .checkbox-group {
+    margin-bottom: 2rem;
+    flex-direction: column;
+  }
+  
+  .signup-page .checkbox-group label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.25rem;
+  }
+  
+  .checkbox-group span {
+    font-size: 0.875rem;
+    color: #666;
+    line-height: 1.5;
+  }
+  
+  .checkbox-group a {
+    color: #546BFC;
+    text-decoration: none;
+  }
+  
+  .checkbox-group a:hover {
+    text-decoration: underline;
+  }
+  
+  .next-button,
+  .submit-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: #546BFC;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .next-button:hover,
+  .submit-button:hover {
+    background-color: #3D56F5;
+    transform: translateY(-2px);
+  }
+  
+  .next-button:active,
+  .submit-button:active {
+    transform: translateY(1px);
+  }
+  .next-button:disabled, 
+.submit-button:disabled {
+  background-color: #ccc; /* Greyed out */
+  cursor: not-allowed; /* Show disabled cursor */
+  opacity: 0.7;
+}
+
+
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .signup-container {
+      padding: 1.5rem;
+    }
+  
+    .signup-container h1 {
+      font-size: 1.5rem;
+    }
+  
+    .phone-input {
+      flex-direction: column;
+    }
+  
+    .country-code {
+      width: 100%;
+    }
+    
+  }
