@@ -197,14 +197,6 @@ const isDashboardPage = dashboardRoutes.some(route =>
       <ProtectedRoute allowedRoles={['admin']} element={<AdminAppointments />} />
     }
   />
-  
-  {/* Chat Page */}
-  <Route
-    path="/chat"
-    element={
-      <ProtectedRoute allowedRoles={['patient', 'doctor', 'admin']} element={<ChatPage />} />
-    }
-  />
 </Routes>
 
       
