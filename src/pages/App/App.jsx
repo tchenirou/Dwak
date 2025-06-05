@@ -100,9 +100,6 @@ const isDashboardPage = dashboardRoutes.some(route =>
               <li>
               <Link to="/recrutement">Recrutement</Link>
               </li>
-              {/*<li>
-                  <Link to="/chat">Messages</Link>
-                </li>*/}
             </ul>
           </nav>
           <div className="auth-buttons">
