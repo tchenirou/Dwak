@@ -4,7 +4,7 @@ const router = express.Router();
 const { auth, checkRole } = require('../middleware/auth');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
-const User = require('../models/User');
+const User = require('../models/user');
 const Doctor = require('../models/Doctor');
 const Patient = require('../models/Patient');
 
