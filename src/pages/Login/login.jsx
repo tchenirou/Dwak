@@ -24,10 +24,10 @@ function Login() {
     console.log("Sending login request...");
 
     try {
-      const response = await fetch("https://your-backend-service.onrender.com/api/appointments"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const response = await fetch("https://your-backend-service.onrender.com/api/appointments", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
