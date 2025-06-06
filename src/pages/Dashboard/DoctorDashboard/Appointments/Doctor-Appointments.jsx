@@ -13,10 +13,13 @@ import "./Doctor-Appointments.css"
 import Sidebar from "../../../../component/SideBar/DoctorSideBar/DoctorSideBar"
 import ProfileDropdown from "../../../../component/Dashboards/Profilepic/ProfileDropdown"
 import {  } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 
 const DoctorAppointments = () => {
   const [activeTab, setActiveTab] = useState("upcoming")
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -408,11 +411,15 @@ const DoctorAppointments = () => {
               {activeTab === "upcoming" && (
                 <div className="modal-actions">
                   <button
-                    className="action-button confirm"
-                    onClick={() => handleStatusChange(selectedAppointment.id, "Confirmed")}
-                  >
-                    Confirm Appointment
-                  </button>
+  className="action-button confirm"
+  onClick={() => {
+    handleStatusChange(selectedAppointment.id, "Confirmed");
+    navigate(`/consultation/1`);
+  }}
+>
+  Confirm Appointment
+</button>
+
                   <button
                     className="action-button cancel"
                     onClick={() => handleStatusChange(selectedAppointment.id, "Cancelled")}
