@@ -32,10 +32,11 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://dwak-b56o.vercel.app", // ✅ use this
     methods: ["GET", "POST"]
   }
 });
+
 
 // Socket.IO signaling logic
 // Keep track of users in rooms (simple mapping for 2-person rooms)
