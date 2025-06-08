@@ -43,18 +43,21 @@ const ConsultationRoom = () => {
     }
   }, []);
 
-  // Connect to socket
-  useEffect(() => {
-    const newSocket = io("http://localhost:5000");
-    setSocket(newSocket);
-    newSocket.on("connect", () => {
-      console.log("Socket connected!", newSocket.id);
-    });
 
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
+ // Connect to socket
+useEffect(() => {
+  const newSocket = io("https://dwak.onrender.com"); // ✅ use deployed backend
+  setSocket(newSocket);
+
+  newSocket.on("connect", () => {
+    console.log("Socket connected!", newSocket.id);
+  });
+
+  return () => {
+    newSocket.disconnect();
+  };
+}, []);
+
 
   // Get local media
   useEffect(() => {
