@@ -834,24 +834,6 @@ header:hover {
 /* Responsive design */
 @media (max-width: 64rem) {
   /* 1024px */
-    .menu-float-button {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 99999;
-  background-color: #0080ff;
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.menu-float-button:hover {
-  background-color: #006ad1;
-}
   .hero .container,
   .future-healthcare .container,
   .final-cta .container {
@@ -895,6 +877,24 @@ header:hover {
 }
 /* Responsive header adjustments */
 @media (max-width: 768px) {
+   .menu-float-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+  background-color: #0080ff;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.menu-float-button:hover {
+  background-color: #006ad1;
+}
   header {
     padding: 0.75rem 0; /* Reduce padding */
   }
