@@ -116,10 +116,6 @@ const isDashboardPage = dashboardRoutes.some(route =>
       </div>
     </header>
   )}
-            </div>
-        </div>
-      </header>)}
-
       {/* Main Content */}
       <div
         className="main-content"
