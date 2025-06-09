@@ -78,7 +78,7 @@ const isDashboardPage = dashboardRoutes.some(route =>
  {!isDashboardPage && (
   <button
     onClick={() => setIsVisible(prev => !prev)}
-    className="menu-float-button"
+    className="menu-float-button block md:hidden"
   >
     {isVisible ? '✕' : '☰'}
   </button>
