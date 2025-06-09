@@ -74,47 +74,48 @@ const isDashboardPage = dashboardRoutes.some(route =>
 // Hide header for dashboard pages
   return (
     <div className="app">
-      {/* Header */}
-      {!isDashboardPage && (
-      <header className={isVisible ? "visible" : "hidden"}>
-        <div className="container">
-          <div className="logo">
-            <Link to="/">
-              <img src="/Images/logo.png" alt="WAK Logo" />
-            </Link>
-          </div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/about">About</Link>
-              </li>
-              <li>
-              <Link to="/Overview">Service</Link>
-              </li>
-              <li>
-              <Link to="/contact">Contact</Link>
-              </li>
-              <li>
-              <Link to="/recrutement">Recrutement</Link>
-              </li>
-            </ul>
-          </nav>
-          <div className="auth-buttons">
-              {authToken ? (
-                <ProfileDropdown/> // Render ProfileDropdown
-              ) : (
-                <>
-                  <Link to="/login" className="login-button">
-                    Se connecter
-                  </Link>
-                  <Link to="/signup" className="signup-button">
-                    S'inscrire
-                  </Link>
-                </>
-              )}
+  {/* Floating button to reopen menu */}
+ {!isDashboardPage && (
+  <button
+    onClick={() => setIsVisible(prev => !prev)}
+    className="menu-float-button"
+  >
+    {isVisible ? '✕' : '☰'}
+  </button>
+)}
+
+
+  {/* Header */}
+  {!isDashboardPage && (
+    <header className={isVisible ? "visible" : "hidden"}>
+      <div className="container">
+        <div className="logo">
+          <Link to="/">
+            <img src="/Images/logo.png" alt="WAK Logo" />
+          </Link>
+        </div>
+        <nav>
+          <ul>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/about">About</Link></li>
+            <li><Link to="/Overview">Service</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
+            <li><Link to="/recrutement">Recrutement</Link></li>
+          </ul>
+        </nav>
+        <div className="auth-buttons">
+          {authToken ? (
+            <ProfileDropdown />
+          ) : (
+            <>
+              <Link to="/login" className="login-button">Se connecter</Link>
+              <Link to="/signup" className="signup-button">S'inscrire</Link>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  )}
             </div>
         </div>
       </header>)}
