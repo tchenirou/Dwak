@@ -1,331 +1,510 @@
 /* ConsultationRoom.css */
+
 .consultation-room {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f8fafc;
-  color: #334155;
-  font-family: "Arial", sans-serif;
+    display: grid; /* Use grid for overall layout */
+    grid-template-rows: auto 1fr; /* Header row, then main content row */
+    height: 100vh;
+    background-color: #f8fafc;
+    color: #334155;
+    font-family: "Arial", sans-serif;
+    overflow: hidden; /* Prevent overall scrolling */
 }
 
+/* Header (Keep your existing styles, but ensure it spans columns) */
 .consultation-room .room-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem 2rem;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  border-radius: 0.75rem 0.75rem 0 0;
+    grid-column: 1 / -1; /* Spans across all columns */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    /* border-radius: 0.75rem 0.75rem 0 0;  No top border radius when full width */
 }
 
 .consultation-room .room-header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
 }
 
 .consultation-room .room-status {
-  color: #10b981;
-  font-weight: 500;
-  margin: 0.25rem 0 0 0;
-}
-
-.consultation-room .video-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1rem;
-  flex: 1;
-  min-height: 0;
-}
-
-.consultation-room .video-wrapper {
-  position: relative;
-  flex: 1;
-  min-width: 300px;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  background-color: #0f172a;
-}
-
-.consultation-room .video-element {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background-color: #1e293b;
-}
-
-.consultation-room .video-label {
-  position: absolute;
-  bottom: 1rem;
-  left: 1rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.consultation-room .video-controls {
-  position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.consultation-room .video-wrapper:hover .video-controls {
-  opacity: 1;
-}
-
-.consultation-room .control-button {
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: white;
-  transition: all 0.2s ease;
-}
-
-.consultation-room .control-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-.consultation-room .control-button.active {
-  background-color: #3b82f6;
-}
-
-.consultation-room .control-button.inactive {
-  background-color: #64748b;
-}
-
-.consultation-room .control-button.end-call {
-  background-color: #ef4444;
-}
-
-.consultation-room .control-button.end-call:hover {
-  background-color: #dc2626;
-}
-
-.consultation-room .chat-container {
-  height: 30vh;
-  border-top: 1px solid #e2e8f0;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-}
-
-.consultation-room .chat-header {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.consultation-room .chat-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0;
-  color: #0f172a;
-}
-
-.consultation-room .messages-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.consultation-room .message {
-  display: flex;
-  flex-direction: column;
-  max-width: 70%;
-}
-
-.consultation-room .message.sent {
-  align-self: flex-end;
-}
-
-.consultation-room .message.received {
-  align-self: flex-start;
-}
-
-.consultation-room .message-content {
-  background-color: #f1f5f9;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  position: relative;
-}
-
-.consultation-room .message.sent .message-content {
-  background-color: #dbeafe;
-  border-bottom-right-radius: 0;
-}
-
-.consultation-room .message.received .message-content {
-  background-color: #f1f5f9;
-  border-bottom-left-radius: 0;
-}
-
-.consultation-room .message-content p {
-  margin: 0;
-  font-size: 0.9375rem;
-}
-
-.consultation-room .message-time {
-  font-size: 0.75rem;
-  color: #64748b;
-  display: block;
-  text-align: right;
-  margin-top: 0.25rem;
-}
-
-.consultation-room .message-sender {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
-}
-
-.consultation-room .message.sent .message-sender {
-  text-align: right;
-}
-
-.consultation-room .message-form {
-  display: flex;
-  padding: 1rem;
-  border-top: 1px solid #e2e8f0;
-  gap: 0.5rem;
-}
-
-.consultation-room .message-input {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
-  font-size: 0.9375rem;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-.consultation-room .message-input:focus {
-  border-color: #3b82f6;
-}
-
-.consultation-room .send-button {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.consultation-room .send-button:hover {
-  background-color: #2563eb;
-}
-
-/* Media Queries for Responsive Design */
-@media (max-width: 768px) {
-  .consultation-room .video-container {
-    flex-direction: column;
-  }
-
-  .consultation-room .video-wrapper {
-    height: 40vh;
-  }
-
-  .consultation-room .doctor-video {
-    order: 1;
-  }
-
-  .consultation-room .patient-video {
-    order: 2;
-    height: 20vh;
-  }
-
- .consultation-room  .chat-container {
-    height: 40vh;
-  }
-
-  .consultation-room .message {
-    max-width: 85%;
-  }
-
-  .consultation-room .room-header h1 {
-    font-size: 1.25rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .consultation-room .room-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
- .consultation-room  .video-wrapper {
-    min-width: 100%;
-  }
-
- .consultation-room  .video-controls {
-    opacity: 1;
-  }
-}
-
-.header-left h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
+    color: #10b981;
+    font-weight: 500;
+    margin: 0.25rem 0 0 0;
 }
 
 .leave-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
 }
 
 .leave-button:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
-.leave-button i {
-  font-size: 1rem;
+/* Main Content Area: Video Section + Chat */
+.main-content-area {
+    display: grid;
+    grid-template-columns: 1fr 350px; /* Video takes flexible space, Chat fixed 350px */
+    gap: 1.5rem; /* Space between video and chat */
+    padding: 1.5rem; /* Padding around the main content area */
+    overflow: hidden; /* Important for inner scrolling */
 }
+
+/* Video Section */
+.video-section {
+    position: relative; /* Crucial for positioning the local video overlay */
+    background-color: #0f172a; /* Dark background for video area */
+    border-radius: 0.75rem;
+    overflow: hidden; /* Ensures videos don't spill out */
+    display: flex; /* To center the main video visually if needed */
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.main-video-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1e293b; /* Fallback/background for video */
+}
+
+.video-element {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Ensure the video fits within the wrapper, showing full frame */
+    background-color: black; /* Black background for letterboxing if object-fit is 'contain' */
+}
+
+.main-video-label {
+    position: absolute;
+    bottom: 1.5rem; /* Adjusted for controls */
+    left: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    z-index: 20; /* Above video */
+}
+
+/* Local Video Overlay */
+.local-video-overlay {
+    position: absolute;
+    bottom: 100px; /* Initial position, adjusted to be above controls */
+    right: 20px;
+    width: 200px; /* Default small size */
+    height: 150px;
+    background-color: #334155; /* Fallback for no local video */
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 30; /* Higher z-index to be on top */
+    cursor: grab; /* Indicate it's draggable */
+    transition: width 0.3s ease, height 0.3s ease, top 0.3s ease, left 0.3s ease; /* Smooth size transitions */
+}
+
+.local-video-overlay video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Fill the small box */
+    transform: scaleX(-1); /* Mirror local video for natural look */
+}
+
+.local-video-label {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    z-index: 1; /* Above the video in the overlay */
+}
+
+/* Expanded state for local video */
+.local-video-overlay.expanded {
+    width: 400px; /* Larger size when expanded */
+    height: 300px;
+    /* You might want to reposition it when expanded, e.g., center or another corner */
+    /* top: 50%; left: 50%; transform: translate(-50%, -50%); */
+}
+
+/* Call Controls (buttons at the bottom of the video-section) */
+.call-controls { /* Renamed from .video-controls */
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 50px;
+    z-index: 40; /* Highest z-index */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.control-button {
+    width: 45px; /* Slightly larger buttons */
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1.1rem; /* Icon size */
+    transition: all 0.2s ease;
+}
+
+.control-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.control-button.active {
+    background-color: #3b82f6; /* Blue for active mic/camera */
+}
+
+.control-button.inactive {
+    background-color: #64748b; /* Grey for inactive mic/camera */
+}
+
+.control-button.end-call {
+    background-color: #ef4444; /* Red for end call */
+}
+
+.control-button.end-call:hover {
+    background-color: #dc2626;
+}
+
+/* Chat Container */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 300px; /* Ensure chat has a minimum width */
+}
+
+.chat-header {
+    padding: 1rem 1.5rem; /* Adjusted padding */
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+    text-align: center;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 1.3rem; /* Adjusted font size */
+    color: #333;
+}
+
+.messages-container {
+    flex-grow: 1;
+    padding: 1.2rem 1.5rem; /* Adjusted padding */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem; /* Adjusted gap */
+    background-color: #fdfdfd;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%; /* Slightly larger max width for messages */
+}
+
+.message.sent {
+    align-self: flex-end;
+    align-items: flex-end; /* Align content inside message bubble to the right */
+}
+
+.message.received {
+    align-self: flex-start;
+    align-items: flex-start; /* Align content inside message bubble to the left */
+}
+
+.message-sender {
+    font-size: 0.78rem; /* Slightly larger sender font */
+    color: #64748b;
+    margin-bottom: 0.2rem; /* Space between sender and content */
+    opacity: 0.8; /* Slight fade */
+}
+
+.message.sent .message-sender {
+    text-align: right;
+    margin-right: 0.5rem; /* Adjust as needed */
+}
+.message.received .message-sender {
+    text-align: left;
+    margin-left: 0.5rem; /* Adjust as needed */
+}
+
+.message-content {
+    background-color: #f1f5f9;
+    padding: 0.8rem 1.2rem; /* Adjusted padding */
+    border-radius: 0.75rem; /* More rounded */
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+.message.sent .message-content {
+    background-color: #3b82f6; /* Blue for sent messages */
+    color: white;
+    border-bottom-right-radius: 0.25rem; /* Sharp corner on sender side */
+}
+
+.message.received .message-content {
+    background-color: #e2e8f0; /* Light grey for received messages */
+    color: #333;
+    border-bottom-left-radius: 0.25rem; /* Sharp corner on sender side */
+}
+
+.message-content p {
+    margin: 0;
+    font-size: 0.95rem; /* Slightly larger message text */
+}
+
+.message-time {
+    font-size: 0.7rem; /* Smaller time font */
+    color: #64748b;
+    display: block;
+    margin-top: 0.3rem;
+    opacity: 0.7;
+}
+.message.sent .message-time {
+    color: rgba(255, 255, 255, 0.7); /* Lighter color for sent messages time */
+}
+
+
+.message-form {
+    display: flex;
+    padding: 1.2rem 1.5rem; /* Adjusted padding */
+    border-top: 1px solid #e2e8f0;
+    background-color: #f8f9fa;
+    gap: 0.75rem; /* Adjusted gap */
+}
+
+.message-input {
+    flex: 1;
+    padding: 0.8rem 1.2rem; /* Adjusted padding */
+    border: 1px solid #cbd5e1;
+    border-radius: 2rem; /* More rounded input */
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.send-button {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 2rem; /* More rounded button */
+    padding: 0 1.2rem; /* Adjusted padding */
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.send-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+}
+.send-button:active {
+    transform: translateY(0);
+}
+
+
+/* Media Queries for Responsive Design */
+@media (max-width: 1024px) {
+    /* Tablet landscape / larger phones */
+    .main-content-area {
+        grid-template-columns: 1fr 300px; /* Slightly smaller chat on smaller screens */
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .local-video-overlay {
+        width: 160px;
+        height: 120px;
+    }
+
+    .local-video-overlay.expanded {
+        width: 320px;
+        height: 240px;
+    }
+
+    .call-controls {
+        padding: 8px 15px;
+        gap: 0.8rem;
+    }
+    .control-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+
 
 @media (max-width: 768px) {
-  .room-header {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
+    /* Tablet portrait / smaller laptops */
+    .consultation-room {
+        grid-template-rows: auto 1fr; /* Header then main content */
+        overflow-y: auto; /* Allow overall scrolling if content overflows */
+    }
 
-  .leave-button {
-    width: 100%;
-    justify-content: center;
-  }
+    .main-content-area {
+        grid-template-columns: 1fr; /* Stack video and chat vertically */
+        grid-template-rows: auto auto; /* Video takes auto, chat takes auto */
+        gap: 1.5rem;
+        padding: 1rem;
+    }
+
+    .video-section {
+        height: 60vh; /* Give video more height */
+        min-height: 300px; /* Ensure a minimum height for video */
+    }
+
+    .chat-container {
+        height: auto; /* Allow chat to grow, but add max-height if needed */
+        max-height: 50vh; /* Example max height for chat on smaller screens */
+        min-height: 200px; /* Ensure chat is visible */
+    }
+
+    .local-video-overlay {
+        width: 140px;
+        height: 105px;
+        bottom: 100px; /* Position above controls */
+        right: 15px;
+    }
+    .local-video-overlay.expanded {
+        width: 280px;
+        height: 210px;
+    }
+
+    .call-controls {
+        position: relative; /* Make controls flow naturally in mobile layout */
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin-top: 1rem; /* Space below video */
+        display: flex;
+        justify-content: center; /* Center controls horizontally */
+        width: 100%; /* Take full width */
+        background-color: transparent; /* No dark background when floating */
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+    }
+    .control-button {
+        background-color: #3b82f6; /* Keep button colors */
+    }
+    .control-button:hover {
+        background-color: #2563eb;
+    }
+
+
+    /* Header adjustments for smaller screens */
+    .consultation-room .room-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+    }
+
+    .consultation-room .room-header h1 {
+        font-size: 1.3rem;
+    }
+    .leave-button {
+        width: 100%;
+        justify-content: center;
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .message {
+        max-width: 95%; /* Allow messages to take more width */
+    }
+    .message-form {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screens / most phones */
+    .main-content-area {
+        padding: 0.8rem;
+        gap: 1rem;
+    }
+    .video-section {
+        height: 50vh; /* Adjust height for very small screens */
+        min-height: 250px;
+    }
+    .local-video-overlay {
+        width: 120px;
+        height: 90px;
+        bottom: 15px;
+        right: 10px;
+        border-width: 1px;
+    }
+    .local-video-overlay.expanded {
+        width: 240px;
+        height: 180px;
+    }
+    .control-button {
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+    }
+    .chat-header h2 {
+        font-size: 1.1rem;
+    }
+    .messages-container {
+        padding: 0.8rem;
+    }
+    .message-content {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    .message-input {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+    .send-button {
+        padding: 0 1rem;
+    }
 }
