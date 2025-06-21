@@ -319,6 +319,7 @@ const ConsultationRoom = () => {
     socket.emit("joinRoom", roomId);
 
     // Attach listeners - these functions are now stable due to useRef for queue
+    // All relevant useCallback functions are now included in the dependency array
     socket.on("roomUsers", handleRoomUsers);
     socket.on("newPeerReady", handleNewPeerReady);
     socket.on("initiatorSignal", handleInitiatorSignal);
@@ -351,8 +352,13 @@ const ConsultationRoom = () => {
     localStreamRef.current,
     mediaAccessGrantedRef.current, // Direct access to .current for ref values in dependencies
     createOffer, // Stable useCallback
-    // IMPORTANT: Removed handle... functions from this dependency array
-    // as they are stable Callbacks themselves and socket is already a dependency.
+    handleRoomUsers, // Re-added to dependencies
+    handleNewPeerReady, // Re-added to dependencies
+    handleInitiatorSignal, // Re-added to dependencies
+    handleOffer, // Re-added to dependencies
+    handleAnswer, // Re-added to dependencies
+    handleIceCandidate, // Re-added to dependencies
+    handlePeerDisconnected // Re-added to dependencies
   ]);
 
   // Handle incoming messages
