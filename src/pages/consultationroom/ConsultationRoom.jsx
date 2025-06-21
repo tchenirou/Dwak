@@ -35,7 +35,7 @@ const ConsultationRoom = () => {
   const [socket, setSocket] = useState(null);
   const [isLocalVideoExpanded, setIsLocalVideoExpanded] = useState(false);
 
-  // --- CRITICAL CHANGE: Use useRef for ICE candidates queue ---
+  // Use useRef for ICE candidates queue (CRITICAL CHANGE FOR STABILITY)
   const iceCandidatesQueueRef = useRef([]); // This queue will hold ICE candidates
   // Ref to track if remote description is set
   const remoteDescriptionSetRef = useRef(false);
@@ -65,7 +65,7 @@ const ConsultationRoom = () => {
   // Connect to Socket.IO
   useEffect(() => {
     const SOCKET_SERVER_URL = process.env.NODE_ENV === 'production'
-      ? '[https://dwak.onrender.com](https://dwak.onrender.com)' // IMPORTANT: This URL MUST be your actual Render backend's public URL
+      ? 'https://dwak.onrender.com' // IMPORTANT: This URL MUST be your actual Render backend's public URL
       : 'http://localhost:5000';
 
     console.log(`Connecting to Socket.IO at: ${SOCKET_SERVER_URL}`);
@@ -351,13 +351,8 @@ const ConsultationRoom = () => {
     localStreamRef.current,
     mediaAccessGrantedRef.current, // Direct access to .current for ref values in dependencies
     createOffer, // Stable useCallback
-    handleRoomUsers, // Stable useCallback
-    handleNewPeerReady, // Stable useCallback
-    handleInitiatorSignal, // Stable useCallback
-    handleOffer, // Stable useCallback
-    handleAnswer, // Stable useCallback
-    handleIceCandidate, // Stable useCallback
-    handlePeerDisconnected // Stable useCallback
+    // IMPORTANT: Removed handle... functions from this dependency array
+    // as they are stable Callbacks themselves and socket is already a dependency.
   ]);
 
   // Handle incoming messages
