@@ -57,7 +57,7 @@ const ConsultationRoom = () => {
   useEffect(() => {
     // Determine the Socket.IO server URL based on the environment
     const SOCKET_SERVER_URL = process.env.NODE_ENV === 'production'
-      ? 'https://your-backend-name.onrender.com' // <<<<<<< IMPORTANT: REPLACE WITH YOUR ACTUAL RENDER BACKEND'S PUBLIC URL
+      ? 'https://dwak.onrender.com' // <<<<<<< IMPORTANT: REPLACE WITH YOUR ACTUAL RENDER BACKEND'S PUBLIC URL
       : 'http://localhost:5000'; // For local development
 
     console.log(`Connecting to Socket.IO at: ${SOCKET_SERVER_URL}`);
