@@ -121,7 +121,7 @@ const ConsultationRoom = () => {
     };
   }, []); // Runs only once on mount
 
-  // createOffer as a top-level useCallback
+  // createOffer as a top-level useCallback (still needed for handleNewPeerReady)
   const createOffer = useCallback(async () => {
     const currentPc = peerConnectionRef.current;
     if (!currentPc || currentPc.signalingState === 'closed') {
@@ -139,97 +139,6 @@ const ConsultationRoom = () => {
     }
   }, [socket, roomId]); // Dependencies for createOffer: socket, roomId
 
-  // handleOffer callback: processes offer and then any queued candidates
-  const handleOffer = useCallback(async ({ offer }) => {
-    console.log("Received offer:", offer);
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.error("Cannot set remote description: PeerConnection is closed.");
-        return;
-    }
-    try {
-      await currentPc.setRemoteDescription(new RTCSessionDescription(offer));
-      remoteDescriptionSetRef.current = true; // Mark remote description as set
-
-      // Process any queued ICE candidates after setting remote description
-      iceCandidatesQueueRef.current.forEach(candidate => { // Use .current
-          currentPc.addIceCandidate(new RTCIceCandidate(candidate))
-              .catch(e => console.error("Error adding queued ICE candidate:", e));
-      });
-      iceCandidatesQueueRef.current = []; // Clear the queue after processing
-
-      const answer = await currentPc.createAnswer();
-      await currentPc.setLocalDescription(answer);
-      socket.emit("answer", { roomId, answer });
-    } catch (error) {
-      console.error("Failed to set remote description or create answer:", error);
-      alert("Erreur WebRTC: Impossible de traiter l'offre de connexion vidéo.");
-    }
-  }, [socket, roomId]); // Dependencies: only socket and roomId are needed now.
-
-  // handleAnswer callback: processes answer and then any queued candidates
-  const handleAnswer = useCallback(async ({ answer }) => {
-    console.log("Received answer:", answer);
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.error("Cannot set remote description: PeerConnection is closed.");
-        return;
-    }
-    try {
-      await currentPc.setRemoteDescription(new RTCSessionDescription(answer));
-      remoteDescriptionSetRef.current = true; // Mark remote description as set
-
-      // Process any queued ICE candidates after setting remote description
-      iceCandidatesQueueRef.current.forEach(candidate => { // Use .current
-          currentPc.addIceCandidate(new RTCIceCandidate(candidate))
-              .catch(e => console.error("Error adding queued ICE candidate:", e));
-      });
-      iceCandidatesQueueRef.current = []; // Clear the queue after processing
-
-    } catch (error) {
-      console.error("Failed to set remote description (answer):", error);
-      alert("Erreur WebRTC: Impossible de traiter la réponse de connexion vidéo.");
-    }
-  }, []); // Dependencies: empty, as it uses refs and doesn't directly depend on state causing re-creation.
-
-  // handleIceCandidate callback: adds or queues candidate
-  const handleIceCandidate = useCallback(async ({ candidate }) => {
-    console.log("Received ICE candidate:", candidate);
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.warn("Cannot add ICE candidate: PeerConnection is closed.");
-        return;
-    }
-
-    if (remoteDescriptionSetRef.current && currentPc.remoteDescription !== null) {
-        // Remote description is already set, add candidate directly
-        try {
-            await currentPc.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (err) {
-            if (!err.toString().includes("Candidate gathering cannot be restarted")) {
-                console.error("Failed to add ICE candidate:", err);
-            }
-        }
-    } else {
-        // Remote description not yet set, queue the candidate
-        console.log("Queuing ICE candidate, remoteDescription not yet set.");
-        iceCandidatesQueueRef.current.push(candidate); // Use .current.push
-    }
-  }, []); // Dependencies: empty, as it uses refs and doesn't directly depend on state causing re-creation.
-
-  // handlePeerDisconnected callback
-  const handlePeerDisconnected = useCallback((disconnectedSocketId) => {
-    console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
-    }
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null;
-    }
-    alert("Consultation Terminée: Votre interlocuteur a quitté la consultation.");
-    window.history.back(); // Navigate back after showing alert
-  }, []);
 
   // Main WebRTC connection and Socket.IO signaling useEffect
   useEffect(() => {
@@ -318,8 +227,110 @@ const ConsultationRoom = () => {
 
     socket.emit("joinRoom", roomId);
 
-    // Attach listeners - these functions are now stable due to useRef for queue
-    // All relevant useCallback functions are now included in the dependency array
+    // Socket.IO signaling event listeners defined INSIDE useEffect
+    const handleRoomUsers = (users) => {
+      console.log("👥 Current room users:", users);
+      if (users.length === 1 && users[0] === socket.id) {
+        console.log("Waiting for another peer to join...");
+      } else if (users.length === 2 && users.includes(socket.id)) {
+        console.log("Two users in room. Signaling will proceed.");
+      }
+    };
+
+    const handleNewPeerReady = (otherSocketId) => {
+      console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
+      createOffer(); // Calls the top-level createOffer
+    };
+
+    const handleInitiatorSignal = () => {
+      console.log(`Waiting for offer from initiator...`);
+    };
+
+    const handleOffer = async ({ offer }) => {
+      console.log("Received offer:", offer);
+      const currentPc = peerConnectionRef.current;
+      if (!currentPc || currentPc.signalingState === 'closed') {
+          console.error("Cannot set remote description: PeerConnection is closed.");
+          return;
+      }
+      try {
+        await currentPc.setRemoteDescription(new RTCSessionDescription(offer));
+        remoteDescriptionSetRef.current = true;
+
+        iceCandidatesQueueRef.current.forEach(candidate => {
+            currentPc.addIceCandidate(new RTCIceCandidate(candidate))
+                .catch(e => console.error("Error adding queued ICE candidate:", e));
+        });
+        iceCandidatesQueueRef.current = [];
+
+        const answer = await currentPc.createAnswer();
+        await currentPc.setLocalDescription(answer);
+        socket.emit("answer", { roomId, answer });
+      } catch (error) {
+        console.error("Failed to set remote description or create answer:", error);
+        alert("Erreur WebRTC: Impossible de traiter l'offre de connexion vidéo.");
+      }
+    };
+
+    const handleAnswer = async ({ answer }) => {
+      console.log("Received answer:", answer);
+      const currentPc = peerConnectionRef.current;
+      if (!currentPc || currentPc.signalingState === 'closed') {
+          console.error("Cannot set remote description: PeerConnection is closed.");
+          return;
+      }
+      try {
+        await currentPc.setRemoteDescription(new RTCSessionDescription(answer));
+        remoteDescriptionSetRef.current = true;
+
+        iceCandidatesQueueRef.current.forEach(candidate => {
+            currentPc.addIceCandidate(new RTCIceCandidate(candidate))
+                .catch(e => console.error("Error adding queued ICE candidate:", e));
+        });
+        iceCandidatesQueueRef.current = [];
+
+      } catch (error) {
+        console.error("Failed to set remote description (answer):", error);
+        alert("Erreur WebRTC: Impossible de traiter la réponse de connexion vidéo.");
+      }
+    };
+
+    const handleIceCandidate = async ({ candidate }) => {
+      console.log("Received ICE candidate:", candidate);
+      const currentPc = peerConnectionRef.current;
+      if (!currentPc || currentPc.signalingState === 'closed') {
+          console.warn("Cannot add ICE candidate: PeerConnection is closed.");
+          return;
+      }
+
+      if (remoteDescriptionSetRef.current && currentPc.remoteDescription !== null) {
+          try {
+              await currentPc.addIceCandidate(new RTCIceCandidate(candidate));
+          } catch (err) {
+              if (!err.toString().includes("Candidate gathering cannot be restarted")) {
+                  console.error("Failed to add ICE candidate:", err);
+              }
+          }
+      } else {
+          console.log("Queuing ICE candidate, remoteDescription not yet set.");
+          iceCandidatesQueueRef.current.push(candidate);
+      }
+    };
+
+    const handlePeerDisconnected = (disconnectedSocketId) => {
+      console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = null;
+      }
+      alert("Consultation Terminée: Votre interlocuteur a quitté la consultation.");
+      window.history.back();
+    };
+
+    // Attach listeners
     socket.on("roomUsers", handleRoomUsers);
     socket.on("newPeerReady", handleNewPeerReady);
     socket.on("initiatorSignal", handleInitiatorSignal);
@@ -351,17 +362,10 @@ const ConsultationRoom = () => {
     roomId,
     localStreamRef.current,
     mediaAccessGrantedRef.current, // Direct access to .current for ref values in dependencies
-    createOffer, // Stable useCallback
-    handleRoomUsers, // Re-added to dependencies
-    handleNewPeerReady, // Re-added to dependencies
-    handleInitiatorSignal, // Re-added to dependencies
-    handleOffer, // Re-added to dependencies
-    handleAnswer, // Re-added to dependencies
-    handleIceCandidate, // Re-added to dependencies
-    handlePeerDisconnected // Re-added to dependencies
+    createOffer // Only external useCallback needed
   ]);
 
-  // Handle incoming messages
+  // Handle incoming messages (separate useEffect for clarity)
   useEffect(() => {
     if (!socket) return;
 
@@ -374,7 +378,7 @@ const ConsultationRoom = () => {
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
     };
-  }, [socket]);
+  }, [socket]); // Only depends on socket
 
   // Scroll chat to bottom
   useEffect(() => {
