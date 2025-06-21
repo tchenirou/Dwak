@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./ConsultationRoom.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,20 +12,20 @@ import {
   faVideoSlash,
   faPhoneSlash,
   faPaperPlane,
-  faExpand,
-  faCompress,
+  faExpand, // New icon for expand/contract
+  faCompress, // New icon for expand/contract
 } from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
 import { jwtDecode } from "jwt-decode";
 
 const ConsultationRoom = () => {
   const { roomId } = useParams();
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  const localVideoRef = useRef(null); // This will now point to YOUR video feed
+  const remoteVideoRef = useRef(null); // This will now point to THE OTHER PERSON's video feed
   const localStreamRef = useRef(null);
   const peerConnectionRef = useRef(null);
   const chatContainerRef = useRef(null);
-  const localVideoOverlayRef = useRef(null);
+  const localVideoOverlayRef = useRef(null); // Ref for the local video overlay div
 
   const [isMicActive, setIsMicActive] = useState(true);
   const [isCameraActive, setIsCameraActive] = useState(true);
@@ -33,62 +33,34 @@ const ConsultationRoom = () => {
   const [newMessage, setNewMessage] = useState("");
   const [userRole, setUserRole] = useState(null);
   const [socket, setSocket] = useState(null);
-  const [isLocalVideoExpanded, setIsLocalVideoExpanded] = useState(false);
+  const [isLocalVideoExpanded, setIsLocalVideoExpanded] = useState(false); // State for local video size
 
-  // Use useRef for ICE candidates queue (CRITICAL CHANGE FOR STABILITY)
-  const iceCandidatesQueueRef = useRef([]); // This queue will hold ICE candidates
-  // Ref to track if remote description is set
-  const remoteDescriptionSetRef = useRef(false);
-  // Ref to track if media access has been granted
-  const mediaAccessGrantedRef = useRef(false);
-
-  // Get token & role on component mount
+  // Get token & role
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.warn("No token found in localStorage. Redirecting to login.");
-      alert("Vous n'êtes pas connecté. Veuillez vous connecter pour accéder à la consultation.");
-      window.location.href = '/login'; // Redirect to login
-      return;
-    }
+    if (!token) return;
     try {
       const decoded = jwtDecode(token);
       setUserRole(decoded.role);
     } catch (error) {
       console.error("Token decoding error:", error);
-      alert("Token invalide. Veuillez vous reconnecter.");
-      localStorage.removeItem('token');
-      window.location.href = '/login'; // Redirect to login
     }
-  }, []); // Runs only once on mount
+  }, []);
 
-  // Connect to Socket.IO
+  // Connect to socket
   useEffect(() => {
-    const SOCKET_SERVER_URL = process.env.NODE_ENV === 'production'
-      ? 'https://dwak.onrender.com' // IMPORTANT: This URL MUST be your actual Render backend's public URL
-      : 'http://localhost:5000';
-
-    console.log(`Connecting to Socket.IO at: ${SOCKET_SERVER_URL}`);
-    const newSocket = io(SOCKET_SERVER_URL);
+    const newSocket = io("https://dwak.onrender.com");
     setSocket(newSocket);
-
     newSocket.on("connect", () => {
       console.log("Socket connected!", newSocket.id);
     });
 
-    newSocket.on("connect_error", (error) => {
-        console.error("Socket connection error:", error);
-        alert("Impossible de se connecter au serveur de consultation. Veuillez vérifier votre connexion Internet et réessayer.");
-    });
-
     return () => {
-      console.log("Disconnecting socket...");
       newSocket.disconnect();
-      setSocket(null);
     };
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
 
-  // Get local media stream
+  // Get local media
   useEffect(() => {
     const getMedia = async () => {
       try {
@@ -99,212 +71,46 @@ const ConsultationRoom = () => {
         localStreamRef.current = stream;
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
-          console.log("Local media stream set.");
-          mediaAccessGrantedRef.current = true; // Set flag to true on success
         }
       } catch (err) {
         console.error("Error accessing media devices:", err);
-        alert("Veuillez autoriser l'accès à votre caméra et microphone pour participer à la consultation.");
-        mediaAccessGrantedRef.current = false; // Set flag to false on failure
       }
     };
     getMedia();
+  }, []);
 
-    // Cleanup function: Stop local media tracks when component unmounts
-    return () => {
-      if (localStreamRef.current) {
-        console.log("Stopping local media tracks.");
-        localStreamRef.current.getTracks().forEach((track) => track.stop());
-        localStreamRef.current = null;
-        mediaAccessGrantedRef.current = false; // Reset flag
-      }
-    };
-  }, []); // Runs only once on mount
-
-  // createOffer as a top-level useCallback (still needed for handleNewPeerReady)
-  const createOffer = useCallback(async () => {
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.error("Cannot create offer: PeerConnection is closed or not initialized.");
-        return;
-    }
-    try {
-        console.log("Creating offer...");
-        const offer = await currentPc.createOffer();
-        await currentPc.setLocalDescription(offer);
-        socket.emit("offer", { roomId, offer });
-    } catch (error) {
-        console.error("Failed to create offer:", error);
-        alert("Erreur WebRTC: Impossible de créer une offre de connexion vidéo.");
-    }
-  }, [socket, roomId]); // Dependencies for createOffer: socket, roomId
-
-
-  // Socket.IO signaling event handlers defined using useCallback outside useEffect
-  const handleRoomUsers = useCallback((users) => {
-    console.log("👥 Current room users:", users);
-    if (users.length === 1 && users[0] === socket.id) {
-      console.log("Waiting for another peer to join...");
-    } else if (users.length === 2 && users.includes(socket.id)) {
-      console.log("Two users in room. Signaling will proceed.");
-    }
-  }, [socket]); // Depends on socket
-
-  const handleNewPeerReady = useCallback((otherSocketId) => {
-    console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
-    createOffer(); // Calls the top-level createOffer
-  }, [createOffer]); // Depends on createOffer
-
-  const handleInitiatorSignal = useCallback(() => {
-    console.log(`Waiting for offer from initiator...`);
-  }, []); // No dependencies
-
-  const handleOffer = useCallback(async ({ offer }) => {
-    console.log("Received offer:", offer);
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.error("Cannot set remote description: PeerConnection is closed.");
-        return;
-    }
-    try {
-      await currentPc.setRemoteDescription(new RTCSessionDescription(offer));
-      remoteDescriptionSetRef.current = true;
-
-      iceCandidatesQueueRef.current.forEach(candidate => {
-          currentPc.addIceCandidate(new RTCIceCandidate(candidate))
-              .catch(e => console.error("Error adding queued ICE candidate:", e));
-      });
-      iceCandidatesQueueRef.current = [];
-
-      const answer = await currentPc.createAnswer();
-      await currentPc.setLocalDescription(answer);
-      socket.emit("answer", { roomId, answer });
-    } catch (error) {
-      console.error("Failed to set remote description or create answer:", error);
-      alert("Erreur WebRTC: Impossible de traiter l'offre de connexion vidéo.");
-    }
-  }, [socket, roomId]); // Depends on socket, roomId
-
-  const handleAnswer = useCallback(async ({ answer }) => {
-    console.log("Received answer:", answer);
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.error("Cannot set remote description: PeerConnection is closed.");
-        return;
-    }
-    try {
-      await currentPc.setRemoteDescription(new RTCSessionDescription(answer));
-      remoteDescriptionSetRef.current = true;
-
-      iceCandidatesQueueRef.current.forEach(candidate => {
-          currentPc.addIceCandidate(new RTCIceCandidate(candidate))
-              .catch(e => console.error("Error adding queued ICE candidate:", e));
-      });
-      iceCandidatesQueueRef.current = [];
-
-    } catch (error) {
-      console.error("Failed to set remote description (answer):", error);
-      alert("Erreur WebRTC: Impossible de traiter la réponse de connexion vidéo.");
-    }
-  }, []); // No dependencies (uses refs for peerConnection and iceCandidatesQueue)
-
-  const handleIceCandidate = useCallback(async ({ candidate }) => {
-    console.log("Received ICE candidate:", candidate);
-    const currentPc = peerConnectionRef.current;
-    if (!currentPc || currentPc.signalingState === 'closed') {
-        console.warn("Cannot add ICE candidate: PeerConnection is closed.");
-        return;
-    }
-
-    if (remoteDescriptionSetRef.current && currentPc.remoteDescription !== null) {
-        try {
-            await currentPc.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (err) {
-            if (!err.toString().includes("Candidate gathering cannot be restarted")) {
-                console.error("Failed to add ICE candidate:", err);
-            }
-        }
-    } else {
-        console.log("Queuing ICE candidate, remoteDescription not yet set.");
-        iceCandidatesQueueRef.current.push(candidate);
-    }
-  }, []); // No dependencies (uses refs for peerConnection and iceCandidatesQueue)
-
-  const handlePeerDisconnected = useCallback((disconnectedSocketId) => {
-    console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
-    }
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null;
-    }
-    alert("Consultation Terminée: Votre interlocuteur a quitté la consultation.");
-    window.history.back();
-  }, []); // No dependencies
-
-  // Main WebRTC connection and Socket.IO signaling useEffect
+  // Handle WebRTC connection
   useEffect(() => {
-    // Ensure all necessary dependencies are available before proceeding
-    if (!socket || !roomId || !localStreamRef.current || !mediaAccessGrantedRef.current) {
-      console.log("WebRTC useEffect waiting for all dependencies (socket, roomId, local stream, media access)...");
-      return;
-    }
+    if (!socket || !roomId || !localStreamRef.current) return;
 
-    let peerConnection = peerConnectionRef.current;
-    if (!peerConnection || peerConnection.signalingState === 'closed') {
-        console.log("Initializing new RTCPeerConnection...");
-        peerConnection = new RTCPeerConnection({
-            iceServers: [
-                { urls: "stun:stun.l.google.com:19302" },
-                // Add TURN servers here with your Twilio credentials if needed for mobile networks
-                // For example:
-                // {
-                //     urls: "turn:global.turn.twilio.com:3478?transport=udp",
-                //     username: "YOUR_TWILIO_ACCOUNT_SID",
-                //     credential: "YOUR_TWILIO_AUTH_TOKEN",
-                // },
-                // {
-                //     urls: "turn:global.turn.twilio.com:3478?transport=tcp",
-                //     username: "YOUR_TWILIO_ACCOUNT_SID",
-                //     credential: "YOUR_TWILIO_AUTH_TOKEN",
-                // }
-            ],
-        });
-        peerConnectionRef.current = peerConnection;
-        remoteDescriptionSetRef.current = false;
-        iceCandidatesQueueRef.current = []; // Clear queue for a new connection
-    } else {
-        console.log("Using existing RTCPeerConnection.");
-    }
+    const peerConnection = new RTCPeerConnection({
+      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    });
+    peerConnectionRef.current = peerConnection;
 
     localStreamRef.current.getTracks().forEach((track) => {
-      const senders = peerConnection.getSenders();
-      const trackAlreadyAdded = senders.some(sender => sender.track === track);
-      if (!trackAlreadyAdded) {
-        console.log("Adding track to peerConnection:", track.kind);
-        peerConnection.addTrack(track, localStreamRef.current);
-      }
+      console.log("Adding track to peerConnection:", track.kind);
+      peerConnection.addTrack(track, localStreamRef.current);
     });
 
     const remoteStream = new MediaStream();
-    if (remoteVideoRef.current && remoteVideoRef.current.srcObject !== remoteStream) {
-        remoteVideoRef.current.srcObject = remoteStream;
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = remoteStream;
     }
 
     peerConnection.ontrack = (event) => {
       console.log("📡 Received remote track", event.streams);
+      // Ensure we only add tracks if they are not already part of the remoteStream
       event.streams[0].getTracks().forEach((track) => {
         if (!remoteStream.getTrackById(track.id)) {
+          // Prevent duplicate tracks
           remoteStream.addTrack(track);
-          console.log(`Added remote ${track.kind} track.`);
         }
       });
     };
 
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log("Sending ICE candidate:", event.candidate);
         socket.emit("ice-candidate", {
           roomId,
           candidate: event.candidate,
@@ -312,69 +118,108 @@ const ConsultationRoom = () => {
       }
     };
 
-    peerConnection.onconnectionstatechange = () => {
+    peerConnection.onconnectionstatechange = (event) => {
       console.log("Peer connection state changed:", peerConnection.connectionState);
-      if (peerConnection.connectionState === 'failed' || peerConnection.connectionState === 'disconnected') {
-        alert("Problème de connexion: La connexion vidéo a été interrompue. Veuillez vérifier votre réseau.");
-      }
+      // Useful for debugging: 'new', 'connecting', 'connected', 'disconnected', 'failed', 'closed'
     };
 
-    peerConnection.oniceconnectionstatechange = () => {
+    peerConnection.oniceconnectionstatechange = (event) => {
       console.log("ICE connection state changed:", peerConnection.iceConnectionState);
-      if (peerConnection.iceConnectionState === 'failed') {
-        alert("Problème ICE: La connexion ICE a échoué. Assurez-vous que votre pare-feu n'est pas bloquant.");
-      } else if (peerConnection.iceConnectionState === 'disconnected') {
-         console.warn("ICE connection disconnected. Could be temporary.");
-      }
+      // Useful for debugging: 'new', 'checking', 'connected', 'completed', 'failed', 'disconnected', 'closed'
     };
 
     socket.emit("joinRoom", roomId);
 
-    // Attach listeners - these functions are now stable due to useCallback and proper dependencies
-    socket.on("roomUsers", handleRoomUsers);
-    socket.on("newPeerReady", handleNewPeerReady);
-    socket.on("initiatorSignal", handleInitiatorSignal);
-    socket.on("offer", handleOffer);
-    socket.on("answer", handleAnswer);
-    socket.on("ice-candidate", handleIceCandidate);
-    socket.on("peerDisconnected", handlePeerDisconnected);
+    const createOffer = async () => {
+      console.log("Creating offer...");
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("offer", { roomId, offer });
+    };
 
-    // Cleanup function: Remove WebRTC-related listeners and close peer connection
+    // New logic to handle peer joining/leaving
+    socket.on("roomUsers", (users) => {
+      console.log("👥 Current room users:", users);
+      if (users.length === 1 && users[0] === socket.id) {
+        // This is the first user, wait for another to join
+        console.log("Waiting for another peer to join...");
+      } else if (users.length === 2 && users.includes(socket.id)) {
+        // Two users, but handle initiation based on who joined first (or explicitly signaled)
+        // This event is mainly for awareness, the offer creation logic will be driven by 'newPeerReady'
+        console.log("Two users in room. Signaling will proceed.");
+      }
+    });
+
+    // When the first peer is notified that a second peer is ready
+    socket.on("newPeerReady", (otherSocketId) => {
+      console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
+      createOffer(); // The existing peer (initiator) creates the offer
+    });
+
+    // When the second peer joins and needs to wait for the offer
+    socket.on("initiatorSignal", () => {
+      console.log(`Waiting for offer from initiator...`);
+      // No action needed here, it just signals that this peer is not the initiator
+    });
+
+    socket.on("offer", async ({ offer }) => {
+      console.log("Received offer:", offer);
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(offer)
+      );
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      socket.emit("answer", { roomId, answer });
+    });
+
+    socket.on("answer", async ({ answer }) => {
+      console.log("Received answer:", answer);
+      await peerConnection.setRemoteDescription(
+        new RTCSessionDescription(answer)
+      );
+    });
+
+    socket.on("ice-candidate", async ({ candidate }) => {
+      console.log("Received ICE candidate:", candidate);
+      try {
+        await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (err) {
+        console.error("Failed to add ICE candidate:", err);
+      }
+    });
+
+    socket.on("peerDisconnected", (disconnectedSocketId) => {
+      console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
+      peerConnection.close();
+      // You might want to clear the remote video here, or show a message
+      if (remoteVideoRef.current) {
+        remoteVideoRef.current.srcObject = null;
+      }
+      // Potentially reset peerConnectionRef.current or set up for a new connection if needed
+      peerConnectionRef.current = null; // Important to reset
+    });
+
     return () => {
       console.log("Cleaning up WebRTC useEffect...");
-      socket.off("roomUsers", handleRoomUsers);
-      socket.off("newPeerReady", handleNewPeerReady);
-      socket.off("initiatorSignal", handleInitiatorSignal);
-      socket.off("offer", handleOffer);
-      socket.off("answer", handleAnswer);
-      socket.off("ice-candidate", handleIceCandidate);
-      socket.off("peerDisconnected", handlePeerDisconnected);
+      socket.off("roomUsers");
+      socket.off("newPeerReady");
+      socket.off("initiatorSignal");
+      socket.off("offer");
+      socket.off("answer");
+      socket.off("ice-candidate");
+      socket.off("peerDisconnected"); // Clean up new listener
 
+      // Ensure peerConnection is closed and resources are released
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
         peerConnectionRef.current = null;
       }
-      // Also clear the queue ref on cleanup
-      iceCandidatesQueueRef.current = [];
     };
-  }, [
-    socket,
-    roomId,
-    localStreamRef.current,
-    mediaAccessGrantedRef.current, // Direct access to .current for ref values in dependencies
-    createOffer,
-    handleRoomUsers,
-    handleNewPeerReady,
-    handleInitiatorSignal,
-    handleOffer,
-    handleAnswer,
-    handleIceCandidate,
-    handlePeerDisconnected
-  ]);
+  }, [socket, roomId, localStreamRef.current]); // Keep localStreamRef.current as dependency
 
-  // Handle incoming messages (separate useEffect for clarity)
+  // Handle incoming messages
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !roomId) return;
 
     const handleReceiveMessage = (message) => {
       setMessages((prev) => [...prev, message]);
@@ -385,12 +230,13 @@ const ConsultationRoom = () => {
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
     };
-  }, [socket]); // Only depends on socket
+  }, [socket, roomId]);
 
   // Scroll chat to bottom
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -399,7 +245,6 @@ const ConsultationRoom = () => {
     if (audioTrack) {
       audioTrack.enabled = !audioTrack.enabled;
       setIsMicActive(audioTrack.enabled);
-      console.log("Mic toggled:", audioTrack.enabled);
     }
   };
 
@@ -408,34 +253,22 @@ const ConsultationRoom = () => {
     if (videoTrack) {
       videoTrack.enabled = !videoTrack.enabled;
       setIsCameraActive(videoTrack.enabled);
-      console.log("Camera toggled:", videoTrack.enabled);
     }
   };
 
-  const endCall = useCallback(() => {
-    console.log("Ending call...");
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
-    }
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => track.stop());
-      localStreamRef.current = null;
-    }
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = null;
-    }
-    if (socket) {
-        socket.disconnect();
-        setSocket(null);
-    }
+  const endCall = () => {
     alert("Appel terminé");
-  }, [socket]); // socket is a dependency as it's used inside
+    peerConnectionRef.current?.close();
+    peerConnectionRef.current = null;
+    localStreamRef.current?.getTracks().forEach((track) => track.stop());
+    // Optionally redirect after call ends
+    // window.location.href = '/some-other-page';
+  };
 
   const leaveRoom = () => {
     if (window.confirm("Êtes-vous sûr de vouloir quitter la consultation ?")) {
-      endCall();
-      window.history.back();
+      endCall(); // Ensure call resources are cleaned up
+      window.history.back(); // Navigate back
     }
   };
 
@@ -444,21 +277,13 @@ const ConsultationRoom = () => {
     if (newMessage.trim() === "" || !socket) return;
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("Cannot send message: No token found.");
-      alert("Erreur de session: Votre session a expiré. Veuillez vous reconnecter.");
-      window.location.href = '/login';
-      return;
-    }
+    if (!token) return;
 
     let decoded;
     try {
       decoded = jwtDecode(token);
     } catch {
-      console.error("Invalid token when sending message.");
-      alert("Erreur de session: Token invalide. Veuillez vous reconnecter.");
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      console.error("Invalid token");
       return;
     }
 
@@ -490,7 +315,8 @@ const ConsultationRoom = () => {
     let offset = { x: 0, y: 0 };
 
     const onMouseDown = (e) => {
-      if (e.target !== localVideoElement) return;
+      // Only drag if not clicking on the video element itself or controls
+      if (e.target.tagName === 'VIDEO' || e.target.closest('.video-controls')) return;
 
       isDragging = true;
       const rect = localVideoElement.getBoundingClientRect();
@@ -499,7 +325,7 @@ const ConsultationRoom = () => {
         y: e.clientY - rect.top,
       };
       localVideoElement.style.cursor = 'grabbing';
-      e.preventDefault();
+      e.preventDefault(); // Prevent default browser drag behavior
     };
 
     const onMouseMove = (e) => {
@@ -512,12 +338,13 @@ const ConsultationRoom = () => {
       let newLeft = e.clientX - offset.x - videoSectionRect.left;
       let newTop = e.clientY - offset.y - videoSectionRect.top;
 
+      // Keep within bounds
       newLeft = Math.max(0, Math.min(newLeft, videoSectionRect.width - localVideoElement.offsetWidth));
       newTop = Math.max(0, Math.min(newTop, videoSectionRect.height - localVideoElement.offsetHeight));
 
       localVideoElement.style.left = `${newLeft}px`;
       localVideoElement.style.top = `${newTop}px`;
-      localVideoElement.style.right = 'auto';
+      localVideoElement.style.right = 'auto'; // Disable right/bottom positioning when dragging by left/top
       localVideoElement.style.bottom = 'auto';
     };
 
@@ -535,9 +362,9 @@ const ConsultationRoom = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     };
-  }, []);
+  }, []); // Only runs once on mount
 
-  if (userRole === null) return <div>Chargement...</div>;
+  if (!userRole) return <div>Chargement...</div>;
 
   return (
     <div className="consultation-room">
@@ -551,14 +378,17 @@ const ConsultationRoom = () => {
         </button>
       </div>
 
+      {/* Main content area: Video on left, Chat on right */}
       <div className="main-content-area">
+        {/* Video Section */}
         <div className="video-section">
+          {/* Remote User Video (Main display) */}
           <div className="main-video-wrapper">
             <video
-              ref={remoteVideoRef}
+              ref={remoteVideoRef} // Remote user's video
               autoPlay
               playsInline
-              muted={false}
+              muted={false} // Always unmute the remote participant's audio
               className="video-element"
             />
             <div className="main-video-label">
@@ -566,22 +396,25 @@ const ConsultationRoom = () => {
             </div>
           </div>
 
+          {/* Local User Video (Small overlay) */}
           <div
             ref={localVideoOverlayRef}
             className={`local-video-overlay ${isLocalVideoExpanded ? "expanded" : ""}`}
+            // Inline style for initial positioning, can be overridden by drag JS
             style={{ bottom: '20px', right: '20px' }}
           >
             <video
-              ref={localVideoRef}
+              ref={localVideoRef} // Your own video
               autoPlay
               playsInline
-              muted={true} // Muted for local feedback prevention (standard practice)
+              muted={true} // Always mute your own audio
               className="video-element"
             />
             <div className="local-video-label">Vous</div>
           </div>
 
-          <div className="call-controls">
+          {/* Call Controls */}
+          <div className="call-controls"> {/* Renamed for clarity */}
             <button
               onClick={toggleMic}
               className={`control-button ${isMicActive ? "active" : "inactive"}`}
@@ -611,6 +444,7 @@ const ConsultationRoom = () => {
           </div>
         </div>
 
+        {/* Chat Container */}
         <div className="chat-container">
           <div className="chat-header">
             <h2>Messages</h2>
@@ -623,7 +457,7 @@ const ConsultationRoom = () => {
 
               return (
                 <div
-                  key={message.id || index}
+                  key={index}
                   className={`message ${isSentByUser ? "sent" : "received"}`}
                 >
                   <div className="message-sender">{message.sender}</div>
