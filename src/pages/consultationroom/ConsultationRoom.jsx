@@ -140,6 +140,109 @@ const ConsultationRoom = () => {
   }, [socket, roomId]); // Dependencies for createOffer: socket, roomId
 
 
+  // Socket.IO signaling event handlers defined using useCallback outside useEffect
+  const handleRoomUsers = useCallback((users) => {
+    console.log("👥 Current room users:", users);
+    if (users.length === 1 && users[0] === socket.id) {
+      console.log("Waiting for another peer to join...");
+    } else if (users.length === 2 && users.includes(socket.id)) {
+      console.log("Two users in room. Signaling will proceed.");
+    }
+  }, [socket]); // Depends on socket
+
+  const handleNewPeerReady = useCallback((otherSocketId) => {
+    console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
+    createOffer(); // Calls the top-level createOffer
+  }, [createOffer]); // Depends on createOffer
+
+  const handleInitiatorSignal = useCallback(() => {
+    console.log(`Waiting for offer from initiator...`);
+  }, []); // No dependencies
+
+  const handleOffer = useCallback(async ({ offer }) => {
+    console.log("Received offer:", offer);
+    const currentPc = peerConnectionRef.current;
+    if (!currentPc || currentPc.signalingState === 'closed') {
+        console.error("Cannot set remote description: PeerConnection is closed.");
+        return;
+    }
+    try {
+      await currentPc.setRemoteDescription(new RTCSessionDescription(offer));
+      remoteDescriptionSetRef.current = true;
+
+      iceCandidatesQueueRef.current.forEach(candidate => {
+          currentPc.addIceCandidate(new RTCIceCandidate(candidate))
+              .catch(e => console.error("Error adding queued ICE candidate:", e));
+      });
+      iceCandidatesQueueRef.current = [];
+
+      const answer = await currentPc.createAnswer();
+      await currentPc.setLocalDescription(answer);
+      socket.emit("answer", { roomId, answer });
+    } catch (error) {
+      console.error("Failed to set remote description or create answer:", error);
+      alert("Erreur WebRTC: Impossible de traiter l'offre de connexion vidéo.");
+    }
+  }, [socket, roomId]); // Depends on socket, roomId
+
+  const handleAnswer = useCallback(async ({ answer }) => {
+    console.log("Received answer:", answer);
+    const currentPc = peerConnectionRef.current;
+    if (!currentPc || currentPc.signalingState === 'closed') {
+        console.error("Cannot set remote description: PeerConnection is closed.");
+        return;
+    }
+    try {
+      await currentPc.setRemoteDescription(new RTCSessionDescription(answer));
+      remoteDescriptionSetRef.current = true;
+
+      iceCandidatesQueueRef.current.forEach(candidate => {
+          currentPc.addIceCandidate(new RTCIceCandidate(candidate))
+              .catch(e => console.error("Error adding queued ICE candidate:", e));
+      });
+      iceCandidatesQueueRef.current = [];
+
+    } catch (error) {
+      console.error("Failed to set remote description (answer):", error);
+      alert("Erreur WebRTC: Impossible de traiter la réponse de connexion vidéo.");
+    }
+  }, []); // No dependencies (uses refs for peerConnection and iceCandidatesQueue)
+
+  const handleIceCandidate = useCallback(async ({ candidate }) => {
+    console.log("Received ICE candidate:", candidate);
+    const currentPc = peerConnectionRef.current;
+    if (!currentPc || currentPc.signalingState === 'closed') {
+        console.warn("Cannot add ICE candidate: PeerConnection is closed.");
+        return;
+    }
+
+    if (remoteDescriptionSetRef.current && currentPc.remoteDescription !== null) {
+        try {
+            await currentPc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+            if (!err.toString().includes("Candidate gathering cannot be restarted")) {
+                console.error("Failed to add ICE candidate:", err);
+            }
+        }
+    } else {
+        console.log("Queuing ICE candidate, remoteDescription not yet set.");
+        iceCandidatesQueueRef.current.push(candidate);
+    }
+  }, []); // No dependencies (uses refs for peerConnection and iceCandidatesQueue)
+
+  const handlePeerDisconnected = useCallback((disconnectedSocketId) => {
+    console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+    alert("Consultation Terminée: Votre interlocuteur a quitté la consultation.");
+    window.history.back();
+  }, []); // No dependencies
+
   // Main WebRTC connection and Socket.IO signaling useEffect
   useEffect(() => {
     // Ensure all necessary dependencies are available before proceeding
@@ -227,110 +330,7 @@ const ConsultationRoom = () => {
 
     socket.emit("joinRoom", roomId);
 
-    // Socket.IO signaling event listeners defined INSIDE useEffect
-    const handleRoomUsers = (users) => {
-      console.log("👥 Current room users:", users);
-      if (users.length === 1 && users[0] === socket.id) {
-        console.log("Waiting for another peer to join...");
-      } else if (users.length === 2 && users.includes(socket.id)) {
-        console.log("Two users in room. Signaling will proceed.");
-      }
-    };
-
-    const handleNewPeerReady = (otherSocketId) => {
-      console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
-      createOffer(); // Calls the top-level createOffer
-    };
-
-    const handleInitiatorSignal = () => {
-      console.log(`Waiting for offer from initiator...`);
-    };
-
-    const handleOffer = async ({ offer }) => {
-      console.log("Received offer:", offer);
-      const currentPc = peerConnectionRef.current;
-      if (!currentPc || currentPc.signalingState === 'closed') {
-          console.error("Cannot set remote description: PeerConnection is closed.");
-          return;
-      }
-      try {
-        await currentPc.setRemoteDescription(new RTCSessionDescription(offer));
-        remoteDescriptionSetRef.current = true;
-
-        iceCandidatesQueueRef.current.forEach(candidate => {
-            currentPc.addIceCandidate(new RTCIceCandidate(candidate))
-                .catch(e => console.error("Error adding queued ICE candidate:", e));
-        });
-        iceCandidatesQueueRef.current = [];
-
-        const answer = await currentPc.createAnswer();
-        await currentPc.setLocalDescription(answer);
-        socket.emit("answer", { roomId, answer });
-      } catch (error) {
-        console.error("Failed to set remote description or create answer:", error);
-        alert("Erreur WebRTC: Impossible de traiter l'offre de connexion vidéo.");
-      }
-    };
-
-    const handleAnswer = async ({ answer }) => {
-      console.log("Received answer:", answer);
-      const currentPc = peerConnectionRef.current;
-      if (!currentPc || currentPc.signalingState === 'closed') {
-          console.error("Cannot set remote description: PeerConnection is closed.");
-          return;
-      }
-      try {
-        await currentPc.setRemoteDescription(new RTCSessionDescription(answer));
-        remoteDescriptionSetRef.current = true;
-
-        iceCandidatesQueueRef.current.forEach(candidate => {
-            currentPc.addIceCandidate(new RTCIceCandidate(candidate))
-                .catch(e => console.error("Error adding queued ICE candidate:", e));
-        });
-        iceCandidatesQueueRef.current = [];
-
-      } catch (error) {
-        console.error("Failed to set remote description (answer):", error);
-        alert("Erreur WebRTC: Impossible de traiter la réponse de connexion vidéo.");
-      }
-    };
-
-    const handleIceCandidate = async ({ candidate }) => {
-      console.log("Received ICE candidate:", candidate);
-      const currentPc = peerConnectionRef.current;
-      if (!currentPc || currentPc.signalingState === 'closed') {
-          console.warn("Cannot add ICE candidate: PeerConnection is closed.");
-          return;
-      }
-
-      if (remoteDescriptionSetRef.current && currentPc.remoteDescription !== null) {
-          try {
-              await currentPc.addIceCandidate(new RTCIceCandidate(candidate));
-          } catch (err) {
-              if (!err.toString().includes("Candidate gathering cannot be restarted")) {
-                  console.error("Failed to add ICE candidate:", err);
-              }
-          }
-      } else {
-          console.log("Queuing ICE candidate, remoteDescription not yet set.");
-          iceCandidatesQueueRef.current.push(candidate);
-      }
-    };
-
-    const handlePeerDisconnected = (disconnectedSocketId) => {
-      console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
-      if (peerConnectionRef.current) {
-        peerConnectionRef.current.close();
-        peerConnectionRef.current = null;
-      }
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = null;
-      }
-      alert("Consultation Terminée: Votre interlocuteur a quitté la consultation.");
-      window.history.back();
-    };
-
-    // Attach listeners
+    // Attach listeners - these functions are now stable due to useCallback and proper dependencies
     socket.on("roomUsers", handleRoomUsers);
     socket.on("newPeerReady", handleNewPeerReady);
     socket.on("initiatorSignal", handleInitiatorSignal);
@@ -362,7 +362,14 @@ const ConsultationRoom = () => {
     roomId,
     localStreamRef.current,
     mediaAccessGrantedRef.current, // Direct access to .current for ref values in dependencies
-    createOffer // Only external useCallback needed
+    createOffer,
+    handleRoomUsers,
+    handleNewPeerReady,
+    handleInitiatorSignal,
+    handleOffer,
+    handleAnswer,
+    handleIceCandidate,
+    handlePeerDisconnected
   ]);
 
   // Handle incoming messages (separate useEffect for clarity)
@@ -568,7 +575,7 @@ const ConsultationRoom = () => {
               ref={localVideoRef}
               autoPlay
               playsInline
-              muted={true}
+              muted={true} // Muted for local feedback prevention (standard practice)
               className="video-element"
             />
             <div className="local-video-label">Vous</div>
