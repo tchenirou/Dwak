@@ -35,18 +35,20 @@ const ConsultationRoom = () => {
   const [socket, setSocket] = useState(null);
   const [isLocalVideoExpanded, setIsLocalVideoExpanded] = useState(false);
 
-  // --- NEW: State for queuing ICE candidates ---
+  // State for queuing ICE candidates
   const [iceCandidatesQueue, setIceCandidatesQueue] = useState([]);
-  // --- NEW: Ref to track if remote description is set ---
+  // Ref to track if remote description is set
   const remoteDescriptionSetRef = useRef(false);
+  // NEW: Ref to track if media access has been granted
+  const mediaAccessGrantedRef = useRef(false);
 
   // Get token & role on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.warn("No token found in localStorage.");
-      // Optionally redirect to login if no token
-      // navigate('/login');
+      console.warn("No token found in localStorage. Redirecting to login.");
+      alert("Vous n'êtes pas connecté. Veuillez vous connecter pour accéder à la consultation.");
+      window.location.href = '/login'; // Redirect to login
       return;
     }
     try {
@@ -54,16 +56,17 @@ const ConsultationRoom = () => {
       setUserRole(decoded.role);
     } catch (error) {
       console.error("Token decoding error:", error);
-      // Handle invalid token (e.g., clear token, redirect to login)
+      alert("Token invalide. Veuillez vous reconnecter.");
+      localStorage.removeItem('token');
+      window.location.href = '/login'; // Redirect to login
     }
   }, []); // Runs only once on mount
 
   // Connect to Socket.IO
   useEffect(() => {
-    // Determine the Socket.IO server URL based on the environment
     const SOCKET_SERVER_URL = process.env.NODE_ENV === 'production'
       ? 'https://dwak.onrender.com' // IMPORTANT: This URL MUST be your actual Render backend's public URL
-      : 'http://localhost:5000'; // For local development
+      : 'http://localhost:5000';
 
     console.log(`Connecting to Socket.IO at: ${SOCKET_SERVER_URL}`);
     const newSocket = io(SOCKET_SERVER_URL);
@@ -75,14 +78,14 @@ const ConsultationRoom = () => {
 
     newSocket.on("connect_error", (error) => {
         console.error("Socket connection error:", error);
-        // You might want to display a user-friendly message here
+        alert("Impossible de se connecter au serveur de consultation. Veuillez vérifier votre connexion Internet et réessayer.");
     });
 
     // Cleanup function: Disconnect the socket when the component unmounts
     return () => {
       console.log("Disconnecting socket...");
       newSocket.disconnect();
-      setSocket(null); // Clear the socket state
+      setSocket(null);
     };
   }, []); // Empty dependency array means this effect runs once on mount
 
@@ -98,10 +101,12 @@ const ConsultationRoom = () => {
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
           console.log("Local media stream set.");
+          mediaAccessGrantedRef.current = true; // Set flag to true on success
         }
       } catch (err) {
         console.error("Error accessing media devices:", err);
-        alert("Please allow camera and microphone access to join the consultation.");
+        alert("Veuillez autoriser l'accès à votre caméra et microphone pour participer à la consultation.");
+        mediaAccessGrantedRef.current = false; // Set flag to false on failure
       }
     };
     getMedia();
@@ -111,32 +116,52 @@ const ConsultationRoom = () => {
       if (localStreamRef.current) {
         console.log("Stopping local media tracks.");
         localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
+        mediaAccessGrantedRef.current = false; // Reset flag
       }
     };
   }, []); // Runs only once on mount
 
+  // --- createOffer as a top-level useCallback ---
+  const createOffer = useCallback(async () => {
+    const currentPc = peerConnectionRef.current;
+    if (!currentPc || currentPc.signalingState === 'closed') {
+        console.error("Cannot create offer: PeerConnection is closed or not initialized.");
+        return;
+    }
+    try {
+        console.log("Creating offer...");
+        const offer = await currentPc.createOffer();
+        await currentPc.setLocalDescription(offer);
+        socket.emit("offer", { roomId, offer });
+    } catch (error) {
+        console.error("Failed to create offer:", error);
+        alert("Erreur WebRTC: Impossible de créer une offre de connexion vidéo.");
+    }
+  }, [socket, roomId]); // Dependencies for createOffer
+
+
   // Handle WebRTC connection and Socket.IO signaling
   useEffect(() => {
     // Ensure all necessary dependencies are available before proceeding
-    if (!socket || !roomId || !localStreamRef.current) {
-      console.log("WebRTC useEffect waiting for dependencies...");
+    // IMPORTANT: Check mediaAccessGrantedRef.current here
+    if (!socket || !roomId || !localStreamRef.current || !mediaAccessGrantedRef.current) {
+      console.log("WebRTC useEffect waiting for all dependencies (socket, roomId, local stream, media access)...");
       return;
     }
 
-    // Initialize RTCPeerConnection if it doesn't exist or is closed
     let peerConnection = peerConnectionRef.current;
     if (!peerConnection || peerConnection.signalingState === 'closed') {
         console.log("Initializing new RTCPeerConnection...");
         peerConnection = new RTCPeerConnection({
-            iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }], // Add TURN servers here for production!
         });
-        peerConnectionRef.current = peerConnection; // Store in ref
-        remoteDescriptionSetRef.current = false; // Reset remote description status for new PC
+        peerConnectionRef.current = peerConnection;
+        remoteDescriptionSetRef.current = false;
     } else {
         console.log("Using existing RTCPeerConnection.");
     }
 
-    // Add local tracks to the peer connection if not already added
     localStreamRef.current.getTracks().forEach((track) => {
       const senders = peerConnection.getSenders();
       const trackAlreadyAdded = senders.some(sender => sender.track === track);
@@ -173,30 +198,21 @@ const ConsultationRoom = () => {
 
     peerConnection.onconnectionstatechange = () => {
       console.log("Peer connection state changed:", peerConnection.connectionState);
+      if (peerConnection.connectionState === 'failed' || peerConnection.connectionState === 'disconnected') {
+        alert("Problème de connexion: La connexion vidéo a été interrompue. Veuillez vérifier votre réseau.");
+      }
     };
 
     peerConnection.oniceconnectionstatechange = () => {
       console.log("ICE connection state changed:", peerConnection.iceConnectionState);
+      if (peerConnection.iceConnectionState === 'failed') {
+        alert("Problème ICE: La connexion ICE a échoué. Assurez-vous que votre pare-feu n'est pas bloquant.");
+      } else if (peerConnection.iceConnectionState === 'disconnected') {
+         console.warn("ICE connection disconnected. Could be temporary.");
+      }
     };
 
     socket.emit("joinRoom", roomId);
-
-    // useCallback for createOffer to avoid re-creation on every render
-    const createOffer = useCallback(async () => {
-        const currentPc = peerConnectionRef.current; // Use current ref value
-        if (!currentPc || currentPc.signalingState === 'closed') {
-            console.error("Cannot create offer: PeerConnection is closed or not initialized.");
-            return;
-        }
-        try {
-            console.log("Creating offer...");
-            const offer = await currentPc.createOffer();
-            await currentPc.setLocalDescription(offer);
-            socket.emit("offer", { roomId, offer });
-        } catch (error) {
-            console.error("Failed to create offer:", error);
-        }
-    }, [socket, roomId]); // Dependencies for createOffer
 
     // Socket.IO signaling event listeners (using useCallback for stability)
     const handleRoomUsers = useCallback((users) => {
@@ -206,16 +222,16 @@ const ConsultationRoom = () => {
       } else if (users.length === 2 && users.includes(socket.id)) {
         console.log("Two users in room. Signaling will proceed.");
       }
-    }, [socket]); // Dependency on socket
+    }, [socket]);
 
     const handleNewPeerReady = useCallback((otherSocketId) => {
       console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
-      createOffer(); // The existing peer (initiator) creates the offer
-    }, [createOffer]); // Dependency on createOffer
+      createOffer(); // Calls the top-level createOffer
+    }, [createOffer]);
 
     const handleInitiatorSignal = useCallback(() => {
       console.log(`Waiting for offer from initiator...`);
-    }, []); // No dependencies
+    }, []);
 
     const handleOffer = useCallback(async ({ offer }) => {
       console.log("Received offer:", offer);
@@ -226,22 +242,22 @@ const ConsultationRoom = () => {
       }
       try {
         await currentPc.setRemoteDescription(new RTCSessionDescription(offer));
-        remoteDescriptionSetRef.current = true; // Mark remote description as set
+        remoteDescriptionSetRef.current = true;
 
-        // Process any queued ICE candidates after setting remote description
         iceCandidatesQueue.forEach(candidate => {
             currentPc.addIceCandidate(new RTCIceCandidate(candidate))
                 .catch(e => console.error("Error adding queued ICE candidate:", e));
         });
-        setIceCandidatesQueue([]); // Clear the queue
+        setIceCandidatesQueue([]);
 
         const answer = await currentPc.createAnswer();
         await currentPc.setLocalDescription(answer);
         socket.emit("answer", { roomId, answer });
       } catch (error) {
         console.error("Failed to set remote description or create answer:", error);
+        alert("Erreur WebRTC: Impossible de traiter l'offre de connexion vidéo.");
       }
-    }, [socket, roomId, iceCandidatesQueue]); // Dependencies
+    }, [socket, roomId, iceCandidatesQueue]);
 
     const handleAnswer = useCallback(async ({ answer }) => {
       console.log("Received answer:", answer);
@@ -252,19 +268,19 @@ const ConsultationRoom = () => {
       }
       try {
         await currentPc.setRemoteDescription(new RTCSessionDescription(answer));
-        remoteDescriptionSetRef.current = true; // Mark remote description as set
+        remoteDescriptionSetRef.current = true;
 
-        // Process any queued ICE candidates after setting remote description
         iceCandidatesQueue.forEach(candidate => {
             currentPc.addIceCandidate(new RTCIceCandidate(candidate))
                 .catch(e => console.error("Error adding queued ICE candidate:", e));
         });
-        setIceCandidatesQueue([]); // Clear the queue
+        setIceCandidatesQueue([]);
 
       } catch (error) {
         console.error("Failed to set remote description (answer):", error);
+        alert("Erreur WebRTC: Impossible de traiter la réponse de connexion vidéo.");
       }
-    }, [iceCandidatesQueue]); // Dependencies
+    }, [iceCandidatesQueue]);
 
     const handleIceCandidate = useCallback(async ({ candidate }) => {
       console.log("Received ICE candidate:", candidate);
@@ -275,32 +291,31 @@ const ConsultationRoom = () => {
       }
 
       if (remoteDescriptionSetRef.current && currentPc.remoteDescription !== null) {
-          // Remote description is already set, add candidate directly
           try {
               await currentPc.addIceCandidate(new RTCIceCandidate(candidate));
           } catch (err) {
-              // Ignore "Candidate gathering cannot be restarted" if remote description is being set
               if (!err.toString().includes("Candidate gathering cannot be restarted")) {
                   console.error("Failed to add ICE candidate:", err);
               }
           }
       } else {
-          // Remote description not yet set, queue the candidate
           console.log("Queuing ICE candidate, remoteDescription not yet set.");
           setIceCandidatesQueue(prev => [...prev, candidate]);
       }
-    }, []); // No dependencies for handleIceCandidate as it uses refs/setters
+    }, []);
 
     const handlePeerDisconnected = useCallback((disconnectedSocketId) => {
       console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
-        peerConnectionRef.current = null; // Important: Reset the ref
+        peerConnectionRef.current = null;
       }
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = null;
       }
-    }, []); // No dependencies
+      alert("Consultation Terminée: Votre interlocuteur a quitté la consultation.");
+      window.history.back(); // Navigate back after showing alert
+    }, []); // No dependencies for handlePeerDisconnected, as alert is blocking and window.history.back() will unmount
 
     // Attach listeners
     socket.on("roomUsers", handleRoomUsers);
@@ -327,9 +342,9 @@ const ConsultationRoom = () => {
         peerConnectionRef.current = null;
       }
     };
-  }, [socket, roomId, localStreamRef.current, iceCandidatesQueue]); // Dependencies for this useEffect
+  }, [socket, roomId, localStreamRef.current, iceCandidatesQueue, createOffer, mediaAccessGrantedRef]); // Updated dependencies
 
-  // Handle incoming messages (separate useEffect for clarity and distinct dependencies)
+  // Handle incoming messages
   useEffect(() => {
     if (!socket) return;
 
@@ -403,6 +418,8 @@ const ConsultationRoom = () => {
     const token = localStorage.getItem("token");
     if (!token) {
       console.error("Cannot send message: No token found.");
+      alert("Erreur de session: Votre session a expiré. Veuillez vous reconnecter.");
+      window.location.href = '/login';
       return;
     }
 
@@ -411,6 +428,9 @@ const ConsultationRoom = () => {
       decoded = jwtDecode(token);
     } catch {
       console.error("Invalid token when sending message.");
+      alert("Erreur de session: Token invalide. Veuillez vous reconnecter.");
+      localStorage.removeItem('token');
+      window.location.href = '/login';
       return;
     }
 
@@ -442,7 +462,6 @@ const ConsultationRoom = () => {
     let offset = { x: 0, y: 0 };
 
     const onMouseDown = (e) => {
-      // Only drag if clicking on the overlay itself, not children like video or controls
       if (e.target !== localVideoElement) return;
 
       isDragging = true;
