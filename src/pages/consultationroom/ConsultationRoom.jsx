@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react"; // Added useCallback
 import { useParams } from "react-router-dom";
 import "./ConsultationRoom.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,8 +12,8 @@ import {
   faVideoSlash,
   faPhoneSlash,
   faPaperPlane,
-  faExpand, // New icon for expand/contract
-  faCompress, // New icon for expand/contract
+  faExpand,
+  faCompress,
 } from "@fortawesome/free-solid-svg-icons";
 import { io } from "socket.io-client";
 import { jwtDecode } from "jwt-decode";
@@ -35,32 +35,53 @@ const ConsultationRoom = () => {
   const [socket, setSocket] = useState(null);
   const [isLocalVideoExpanded, setIsLocalVideoExpanded] = useState(false); // State for local video size
 
-  // Get token & role
+  // Get token & role on component mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      console.warn("No token found in localStorage.");
+      // Optionally redirect to login if no token
+      // navigate('/login');
+      return;
+    }
     try {
       const decoded = jwtDecode(token);
       setUserRole(decoded.role);
     } catch (error) {
       console.error("Token decoding error:", error);
+      // Handle invalid token (e.g., clear token, redirect to login)
     }
-  }, []);
+  }, []); // Runs only once on mount
 
-  // Connect to socket
+  // Connect to Socket.IO
   useEffect(() => {
-    const newSocket = io("http://localhost:5000");
+    // Determine the Socket.IO server URL based on the environment
+    const SOCKET_SERVER_URL = process.env.NODE_ENV === 'production'
+      ? 'https://your-backend-name.onrender.com' // <<<<<<< IMPORTANT: REPLACE WITH YOUR ACTUAL RENDER BACKEND'S PUBLIC URL
+      : 'http://localhost:5000'; // For local development
+
+    console.log(`Connecting to Socket.IO at: ${SOCKET_SERVER_URL}`);
+    const newSocket = io(SOCKET_SERVER_URL);
     setSocket(newSocket);
+
     newSocket.on("connect", () => {
       console.log("Socket connected!", newSocket.id);
     });
 
-    return () => {
-      newSocket.disconnect();
-    };
-  }, []);
+    newSocket.on("connect_error", (error) => {
+        console.error("Socket connection error:", error);
+        // You might want to display a user-friendly message here
+    });
 
-  // Get local media
+    // Cleanup function: Disconnect the socket when the component unmounts
+    return () => {
+      console.log("Disconnecting socket...");
+      newSocket.disconnect();
+      setSocket(null); // Clear the socket state
+    };
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  // Get local media stream
   useEffect(() => {
     const getMedia = async () => {
       try {
@@ -71,46 +92,76 @@ const ConsultationRoom = () => {
         localStreamRef.current = stream;
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
+          console.log("Local media stream set.");
         }
       } catch (err) {
         console.error("Error accessing media devices:", err);
+        alert("Please allow camera and microphone access to join the consultation.");
       }
     };
     getMedia();
-  }, []);
 
-  // Handle WebRTC connection
+    // Cleanup function: Stop local media tracks when component unmounts
+    return () => {
+      if (localStreamRef.current) {
+        console.log("Stopping local media tracks.");
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, []); // Runs only once on mount
+
+  // Handle WebRTC connection and Socket.IO signaling
+  // This useEffect will run when `socket`, `roomId`, or `localStreamRef.current` becomes available or changes.
   useEffect(() => {
-    if (!socket || !roomId || !localStreamRef.current) return;
+    // Ensure all necessary dependencies are available before proceeding
+    if (!socket || !roomId || !localStreamRef.current) {
+      console.log("WebRTC useEffect waiting for dependencies...");
+      return;
+    }
 
-    const peerConnection = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-    });
-    peerConnectionRef.current = peerConnection;
+    // Initialize RTCPeerConnection if it doesn't exist or is closed
+    let peerConnection = peerConnectionRef.current;
+    if (!peerConnection || peerConnection.signalingState === 'closed') {
+        console.log("Initializing new RTCPeerConnection...");
+        peerConnection = new RTCPeerConnection({
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        });
+        peerConnectionRef.current = peerConnection; // Store in ref
+    } else {
+        console.log("Using existing RTCPeerConnection.");
+    }
 
+
+    // Add local tracks to the peer connection if not already added
     localStreamRef.current.getTracks().forEach((track) => {
-      console.log("Adding track to peerConnection:", track.kind);
-      peerConnection.addTrack(track, localStreamRef.current);
+      // Check if the track is already added to prevent duplicates
+      const senders = peerConnection.getSenders();
+      const trackAlreadyAdded = senders.some(sender => sender.track === track);
+      if (!trackAlreadyAdded) {
+        console.log("Adding track to peerConnection:", track.kind);
+        peerConnection.addTrack(track, localStreamRef.current);
+      }
     });
 
     const remoteStream = new MediaStream();
-    if (remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = remoteStream;
+    if (remoteVideoRef.current && remoteVideoRef.current.srcObject !== remoteStream) {
+        remoteVideoRef.current.srcObject = remoteStream;
     }
 
     peerConnection.ontrack = (event) => {
       console.log("📡 Received remote track", event.streams);
-      // Ensure we only add tracks if they are not already part of the remoteStream
       event.streams[0].getTracks().forEach((track) => {
+        // Only add track if it's not already part of the remoteStream
         if (!remoteStream.getTrackById(track.id)) {
-          // Prevent duplicate tracks
           remoteStream.addTrack(track);
+          console.log(`Added remote ${track.kind} track.`);
         }
       });
     };
 
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
+        console.log("Sending ICE candidate:", event.candidate);
         socket.emit("ice-candidate", {
           roomId,
           candidate: event.candidate,
@@ -118,108 +169,149 @@ const ConsultationRoom = () => {
       }
     };
 
-    peerConnection.onconnectionstatechange = (event) => {
+    peerConnection.onconnectionstatechange = () => {
       console.log("Peer connection state changed:", peerConnection.connectionState);
       // Useful for debugging: 'new', 'connecting', 'connected', 'disconnected', 'failed', 'closed'
     };
 
-    peerConnection.oniceconnectionstatechange = (event) => {
+    peerConnection.oniceconnectionstatechange = () => {
       console.log("ICE connection state changed:", peerConnection.iceConnectionState);
       // Useful for debugging: 'new', 'checking', 'connected', 'completed', 'failed', 'disconnected', 'closed'
     };
 
+    // Join the room via Socket.IO
     socket.emit("joinRoom", roomId);
 
+    // useCallback for createOffer to avoid re-creation on every render
     const createOffer = async () => {
-      console.log("Creating offer...");
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      socket.emit("offer", { roomId, offer });
+        if (!peerConnection || peerConnection.signalingState === 'closed') {
+            console.error("Cannot create offer: PeerConnection is closed or not initialized.");
+            return;
+        }
+        try {
+            console.log("Creating offer...");
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            socket.emit("offer", { roomId, offer });
+        } catch (error) {
+            console.error("Failed to create offer:", error);
+        }
     };
 
-    // New logic to handle peer joining/leaving
-    socket.on("roomUsers", (users) => {
+    // Socket.IO signaling event listeners
+    const handleRoomUsers = (users) => {
       console.log("👥 Current room users:", users);
+      // You can use this to manage UI states (e.g., showing "waiting for peer")
       if (users.length === 1 && users[0] === socket.id) {
-        // This is the first user, wait for another to join
         console.log("Waiting for another peer to join...");
       } else if (users.length === 2 && users.includes(socket.id)) {
-        // Two users, but handle initiation based on who joined first (or explicitly signaled)
-        // This event is mainly for awareness, the offer creation logic will be driven by 'newPeerReady'
         console.log("Two users in room. Signaling will proceed.");
       }
-    });
+    };
 
-    // When the first peer is notified that a second peer is ready
-    socket.on("newPeerReady", (otherSocketId) => {
+    const handleNewPeerReady = (otherSocketId) => {
       console.log(`💡 New peer (${otherSocketId}) is ready. Creating offer...`);
       createOffer(); // The existing peer (initiator) creates the offer
-    });
+    };
 
-    // When the second peer joins and needs to wait for the offer
-    socket.on("initiatorSignal", () => {
+    const handleInitiatorSignal = () => {
       console.log(`Waiting for offer from initiator...`);
-      // No action needed here, it just signals that this peer is not the initiator
-    });
+      // This peer is the second to join and should wait for an offer.
+    };
 
-    socket.on("offer", async ({ offer }) => {
+    const handleOffer = async ({ offer }) => {
       console.log("Received offer:", offer);
-      await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(offer)
-      );
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      socket.emit("answer", { roomId, answer });
-    });
+      if (!peerConnection || peerConnection.signalingState === 'closed') {
+          console.error("Cannot set remote description: PeerConnection is closed.");
+          // Re-initialize or handle error appropriately
+          return;
+      }
+      try {
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(offer)
+        );
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        socket.emit("answer", { roomId, answer });
+      } catch (error) {
+        console.error("Failed to set remote description or create answer:", error);
+      }
+    };
 
-    socket.on("answer", async ({ answer }) => {
+    const handleAnswer = async ({ answer }) => {
       console.log("Received answer:", answer);
-      await peerConnection.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      );
-    });
+      if (!peerConnection || peerConnection.signalingState === 'closed') {
+          console.error("Cannot set remote description: PeerConnection is closed.");
+          return;
+      }
+      try {
+        await peerConnection.setRemoteDescription(
+          new RTCSessionDescription(answer)
+        );
+      } catch (error) {
+        console.error("Failed to set remote description (answer):", error);
+      }
+    };
 
-    socket.on("ice-candidate", async ({ candidate }) => {
+    const handleIceCandidate = async ({ candidate }) => {
       console.log("Received ICE candidate:", candidate);
+      if (!peerConnection || peerConnection.signalingState === 'closed' || peerConnection.remoteDescription === null) {
+          console.warn("Cannot add ICE candidate: PeerConnection is closed or remoteDescription not set.");
+          return;
+      }
       try {
         await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
       } catch (err) {
-        console.error("Failed to add ICE candidate:", err);
+        // Ignore "Candidate gathering cannot be restarted" if remote description is being set
+        if (!err.toString().includes("Candidate gathering cannot be restarted")) {
+            console.error("Failed to add ICE candidate:", err);
+        }
       }
-    });
+    };
 
-    socket.on("peerDisconnected", (disconnectedSocketId) => {
+    const handlePeerDisconnected = (disconnectedSocketId) => {
       console.log(`Peer ${disconnectedSocketId} disconnected. Closing peer connection.`);
-      peerConnection.close();
-      // You might want to clear the remote video here, or show a message
+      // If a peer disconnects, close the existing peer connection and clear the remote video
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null; // Important: Reset the ref
+      }
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = null;
       }
-      // Potentially reset peerConnectionRef.current or set up for a new connection if needed
-      peerConnectionRef.current = null; // Important to reset
-    });
+      // You might want to re-join the room or display a "peer left" message
+    };
 
+    // Attach listeners
+    socket.on("roomUsers", handleRoomUsers);
+    socket.on("newPeerReady", handleNewPeerReady);
+    socket.on("initiatorSignal", handleInitiatorSignal);
+    socket.on("offer", handleOffer);
+    socket.on("answer", handleAnswer);
+    socket.on("ice-candidate", handleIceCandidate);
+    socket.on("peerDisconnected", handlePeerDisconnected);
+
+    // Cleanup function: Remove WebRTC-related listeners and close peer connection
     return () => {
       console.log("Cleaning up WebRTC useEffect...");
-      socket.off("roomUsers");
-      socket.off("newPeerReady");
-      socket.off("initiatorSignal");
-      socket.off("offer");
-      socket.off("answer");
-      socket.off("ice-candidate");
-      socket.off("peerDisconnected"); // Clean up new listener
+      socket.off("roomUsers", handleRoomUsers);
+      socket.off("newPeerReady", handleNewPeerReady);
+      socket.off("initiatorSignal", handleInitiatorSignal);
+      socket.off("offer", handleOffer);
+      socket.off("answer", handleAnswer);
+      socket.off("ice-candidate", handleIceCandidate);
+      socket.off("peerDisconnected", handlePeerDisconnected);
 
-      // Ensure peerConnection is closed and resources are released
       if (peerConnectionRef.current) {
         peerConnectionRef.current.close();
         peerConnectionRef.current = null;
       }
     };
-  }, [socket, roomId, localStreamRef.current]); // Keep localStreamRef.current as dependency
+  }, [socket, roomId, localStreamRef.current]); // Dependencies for this useEffect
 
-  // Handle incoming messages
+  // Handle incoming messages (separate useEffect for clarity and distinct dependencies)
   useEffect(() => {
-    if (!socket || !roomId) return;
+    if (!socket) return; // Only run if socket is available
 
     const handleReceiveMessage = (message) => {
       setMessages((prev) => [...prev, message]);
@@ -230,13 +322,12 @@ const ConsultationRoom = () => {
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
     };
-  }, [socket, roomId]);
+  }, [socket]); // Dependency on socket only
 
   // Scroll chat to bottom
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -245,6 +336,7 @@ const ConsultationRoom = () => {
     if (audioTrack) {
       audioTrack.enabled = !audioTrack.enabled;
       setIsMicActive(audioTrack.enabled);
+      console.log("Mic toggled:", audioTrack.enabled);
     }
   };
 
@@ -253,16 +345,34 @@ const ConsultationRoom = () => {
     if (videoTrack) {
       videoTrack.enabled = !videoTrack.enabled;
       setIsCameraActive(videoTrack.enabled);
+      console.log("Camera toggled:", videoTrack.enabled);
     }
   };
 
   const endCall = () => {
+    console.log("Ending call...");
+    // Close peer connection
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+    // Stop local media tracks
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
+      localStreamRef.current = null;
+    }
+    // Clear remote video
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.srcObject = null;
+    }
+    // Disconnect socket (if not handled by parent component unmount)
+    if (socket) {
+        socket.disconnect();
+        setSocket(null);
+    }
     alert("Appel terminé");
-    peerConnectionRef.current?.close();
-    peerConnectionRef.current = null;
-    localStreamRef.current?.getTracks().forEach((track) => track.stop());
     // Optionally redirect after call ends
-    // window.location.href = '/some-other-page';
+    // window.location.href = '/some-other-page'; // Or use navigate from react-router-dom
   };
 
   const leaveRoom = () => {
@@ -277,13 +387,16 @@ const ConsultationRoom = () => {
     if (newMessage.trim() === "" || !socket) return;
 
     const token = localStorage.getItem("token");
-    if (!token) return;
+    if (!token) {
+      console.error("Cannot send message: No token found.");
+      return;
+    }
 
     let decoded;
     try {
       decoded = jwtDecode(token);
     } catch {
-      console.error("Invalid token");
+      console.error("Invalid token when sending message.");
       return;
     }
 
@@ -295,7 +408,7 @@ const ConsultationRoom = () => {
     };
 
     socket.emit("sendMessage", { roomId, message });
-    setMessages((prev) => [...prev, message]);
+    setMessages((prev) => [...prev, message]); // Optimistic update
     setNewMessage("");
   };
 
@@ -315,8 +428,8 @@ const ConsultationRoom = () => {
     let offset = { x: 0, y: 0 };
 
     const onMouseDown = (e) => {
-      // Only drag if not clicking on the video element itself or controls
-      if (e.target.tagName === 'VIDEO' || e.target.closest('.video-controls')) return;
+      // Only drag if clicking on the overlay itself, not children like video or controls
+      if (e.target !== localVideoElement) return; // Changed from tagName/closest for more precise drag area
 
       isDragging = true;
       const rect = localVideoElement.getBoundingClientRect();
@@ -364,7 +477,7 @@ const ConsultationRoom = () => {
     };
   }, []); // Only runs once on mount
 
-  if (!userRole) return <div>Chargement...</div>;
+  if (userRole === null) return <div>Chargement...</div>; // Show loading until role is determined
 
   return (
     <div className="consultation-room">
@@ -407,14 +520,14 @@ const ConsultationRoom = () => {
               ref={localVideoRef} // Your own video
               autoPlay
               playsInline
-              muted={true} // Always mute your own audio
+              muted={true} // Always mute your own audio (prevents echo)
               className="video-element"
             />
             <div className="local-video-label">Vous</div>
           </div>
 
           {/* Call Controls */}
-          <div className="call-controls"> {/* Renamed for clarity */}
+          <div className="call-controls">
             <button
               onClick={toggleMic}
               className={`control-button ${isMicActive ? "active" : "inactive"}`}
@@ -457,7 +570,7 @@ const ConsultationRoom = () => {
 
               return (
                 <div
-                  key={index}
+                  key={index} // Consider using message.id if unique, otherwise index is fine as last resort
                   className={`message ${isSentByUser ? "sent" : "received"}`}
                 >
                   <div className="message-sender">{message.sender}</div>
